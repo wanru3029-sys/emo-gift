@@ -75,6 +75,7 @@ tr:hover td{background:#fafaf8}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyB0z4t9S2mRdQZ9Q6kExa3SuFgjNZmskSw",
   authDomain: "emo-gift-platform.firebaseapp.com",
@@ -86,6 +87,7 @@ const firebaseConfig = {
 
 const fireapp = initializeApp(firebaseConfig);
 const db = getFirestore(fireapp);
+
 
 const STORES = ['鼎山','陽明','後昌','仁雄','凱旋'];
 const STORE_COLORS = {
@@ -131,6 +133,7 @@ let state = {
   editingGift: null,
   filterStore: '',
   filterDate: '',
+  giftPage: 1,
   gifts: [],
   orders: [],
   inventoryHistory: [],
@@ -139,19 +142,25 @@ let state = {
 };
 
 // 即時監聽
+let loadCount = 0;
+function checkLoaded() {
+  loadCount++;
+  if(loadCount >= 3) { state.loading = false; render(); }
+  else render();
+}
 onSnapshot(collection(db, 'gifts'), snap => {
   state.gifts = snap.docs.map(d => ({id:d.id,...d.data()}));
-  if(!state.loading) render();
+  if(state.loading) checkLoaded(); else render();
 });
 onSnapshot(collection(db, 'orders'), snap => {
   state.orders = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>b.timestamp?.localeCompare(a.timestamp||'')||0);
-  if(!state.loading) render();
+  if(state.loading) checkLoaded(); else render();
 });
 onSnapshot(collection(db, 'inventoryHistory'), snap => {
   state.inventoryHistory = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>b.timestamp?.localeCompare(a.timestamp||'')||0);
-  state.loading = false;
-  render();
+  if(state.loading) checkLoaded(); else render();
 });
+setTimeout(()=>{ if(state.loading){ state.loading=false; render(); } }, 5000);
 
 function render() {
   const app = document.getElementById('app');
@@ -252,11 +261,22 @@ function renderGifts() {
       <div class="section-title">贈品管理</div>
       <button class="btn btn-primary btn-sm" data-action="openAddGift">+ 新增贈品</button>
     </div>
-    <div class="table-wrap">
+    ${(()=>{
+      const perPage=25;
+      const total=state.gifts.length;
+      const totalPages=Math.max(1,Math.ceil(total/perPage));
+      const page=state.giftPage;
+      const paged=state.gifts.slice((page-1)*perPage,page*perPage);
+      const pagination=totalPages>1?`<div style="display:flex;align-items:center;gap:8px;margin-top:1rem">
+        <button class="btn btn-sm" data-action="giftPagePrev" ${page<=1?'disabled':''}>上一頁</button>
+        <span style="font-size:13px;color:#999">第 ${page} / ${totalPages} 頁，共 ${total} 項</span>
+        <button class="btn btn-sm" data-action="giftPageNext" ${page>=totalPages?'disabled':''}>下一頁</button>
+      </div>`:'';
+      return `<div class="table-wrap">
       <table>
         <thead><tr><th>圖片</th><th>贈品名稱</th><th>點數</th><th>價值</th>${STORES.map(s=>`<th>${s}</th>`).join('')}<th>操作</th></tr></thead>
         <tbody>
-          ${state.gifts.map(g=>`<tr>
+          ${paged.map(g=>`<tr>
             <td>${g.image?`<img src="${g.image}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #eee">`:'<div style="width:48px;height:48px;border-radius:8px;background:#f0f0ee;display:flex;align-items:center;justify-content:center;font-size:20px">🎁</div>'}</td>
             <td style="font-weight:600">${g.name}</td>
             <td><span class="badge-pts">${g.points}點</span></td>
@@ -270,7 +290,8 @@ function renderGifts() {
           ${state.gifts.length===0?`<tr class="empty-row"><td colspan="${5+STORES.length}">尚無贈品，請新增</td></tr>`:''}
         </tbody>
       </table>
-    </div>
+    </div>${pagination}`;
+    })()}
   </div>`;
 }
 
@@ -396,15 +417,14 @@ function renderModal() {
           <div class="form-group"><label class="form-label">價值（元）</label><input class="form-input" id="m-val" type="number" value="${g.value}"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">贈品圖片</label>
-          <div style="display:flex;align-items:center;gap:12px">
+          <label class="form-label">贈品圖片網址</label>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
             <div id="img-preview-wrap">
-              ${g.image?`<img src="${g.image}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #eee">`:'<div style="width:80px;height:80px;border-radius:10px;border:1.5px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc">🎁</div>'}
+              ${g.image?`<img src="${g.image}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #eee">`:'<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc">🎁</div>'}
             </div>
-            <div>
-              <input type="file" id="m-img" accept="image/*" style="display:none">
-              <button class="btn btn-sm" onclick="document.getElementById('m-img').click()">選擇圖片</button>
-              <div style="font-size:11px;color:#999;margin-top:4px">建議尺寸 400×400px</div>
+            <div style="flex:1">
+              <input class="form-input" id="m-img-url" placeholder="貼上圖片網址" value="${g.image||''}" style="font-size:12px">
+              <div style="font-size:11px;color:#999;margin-top:4px">例：https://wanru3029-sys.github.io/emo-gift/化妝包便攜旅行包.jpg</div>
             </div>
           </div>
         </div>
@@ -476,16 +496,10 @@ function attachEvents() {
   // Enter on login
   const lp = document.getElementById('lp');
   if(lp) lp.onkeydown = e => { if(e.key==='Enter') document.querySelector('[data-action="doLogin"]')?.click(); };
-  const mimg = document.getElementById('m-img');
-  if(mimg) mimg.onchange = e => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const wrap = document.getElementById('img-preview-wrap');
-      if(wrap) wrap.innerHTML = '<img src="'+ev.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #eee">';
-    };
-    reader.readAsDataURL(file);
+  const mimgurl = document.getElementById('m-img-url');
+  if(mimgurl) mimgurl.oninput = e => {
+    const wrap = document.getElementById('img-preview-wrap');
+    if(wrap && e.target.value) wrap.innerHTML = '<img src="'+e.target.value+'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #eee" onerror="this.style.display='none'">';
   };
 }
 
@@ -518,14 +532,7 @@ async function handleAction(e) {
     const stock={};
     STORES.forEach(s=>{stock[s]=parseInt(document.getElementById('m-s-'+s).value)||0;});
     if(!name){alert('請填寫贈品名稱');return;}
-    const imgFile=document.getElementById('m-img')?.files[0];
-    const getImageData=()=>new Promise(resolve=>{
-      if(!imgFile){resolve(state.editingGift?.image||'');return;}
-      const reader=new FileReader();
-      reader.onload=e=>resolve(e.target.result);
-      reader.readAsDataURL(imgFile);
-    });
-    const image=await getImageData();
+    const image = document.getElementById('m-img-url')?.value.trim() || state.editingGift?.image || '';
     if(state.modal==='editGift'){
       await updateDoc(doc(db,'gifts',state.editingGift.id),{name,points:pts,value:val,stock,image});
     } else {
@@ -533,6 +540,8 @@ async function handleAction(e) {
     }
     state.modal=null;state.editingGift=null;render();
   }
+  else if(action==='giftPagePrev'){state.giftPage=Math.max(1,state.giftPage-1);render();}
+  else if(action==='giftPageNext'){state.giftPage++;render();}
   else if(action==='closeModal'){state.modal=null;state.editingGift=null;render();}
   else if(action==='openAdjust'){state.modal='adjust';render();}
   else if(action==='saveAdjust'){

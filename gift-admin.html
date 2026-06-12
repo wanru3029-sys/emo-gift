@@ -373,6 +373,19 @@ function renderModal() {
           <div class="form-group"><label class="form-label">價值（元）</label><input class="form-input" id="m-val" type="number" value="${g.value}"></div>
         </div>
         <div class="form-group">
+          <label class="form-label">贈品圖片</label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="img-preview-wrap">
+              ${g.image?`<img src="${g.image}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #eee">`:'<div style="width:80px;height:80px;border-radius:10px;border:1.5px dashed #ddd;display:flex;align-items:center;justify-content:center;font-size:24px;color:#ccc">🎁</div>'}
+            </div>
+            <div>
+              <input type="file" id="m-img" accept="image/*" style="display:none">
+              <button class="btn btn-sm" onclick="document.getElementById('m-img').click()">選擇圖片</button>
+              <div style="font-size:11px;color:#999;margin-top:4px">建議尺寸 400×400px</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
           <label class="form-label">各門市庫存</label>
           <div class="stock-grid">
             ${STORES.map(s=>`<div><label class="form-label">${s}店</label><input class="form-input" id="m-s-${s}" type="number" value="${g.stock?.[s]||0}"></div>`).join('')}
@@ -440,6 +453,17 @@ function attachEvents() {
   // Enter on login
   const lp = document.getElementById('lp');
   if(lp) lp.onkeydown = e => { if(e.key==='Enter') document.querySelector('[data-action="doLogin"]')?.click(); };
+  const mimg = document.getElementById('m-img');
+  if(mimg) mimg.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const wrap = document.getElementById('img-preview-wrap');
+      if(wrap) wrap.innerHTML = '<img src="'+ev.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #eee">';
+    };
+    reader.readAsDataURL(file);
+  };
 }
 
 async function handleAction(e) {
@@ -471,10 +495,18 @@ async function handleAction(e) {
     const stock={};
     STORES.forEach(s=>{stock[s]=parseInt(document.getElementById('m-s-'+s).value)||0;});
     if(!name){alert('請填寫贈品名稱');return;}
+    const imgFile=document.getElementById('m-img')?.files[0];
+    const getImageData=()=>new Promise(resolve=>{
+      if(!imgFile){resolve(state.editingGift?.image||'');return;}
+      const reader=new FileReader();
+      reader.onload=e=>resolve(e.target.result);
+      reader.readAsDataURL(imgFile);
+    });
+    const image=await getImageData();
     if(state.modal==='editGift'){
-      await updateDoc(doc(db,'gifts',state.editingGift.id),{name,points:pts,value:val,stock});
+      await updateDoc(doc(db,'gifts',state.editingGift.id),{name,points:pts,value:val,stock,image});
     } else {
-      await addDoc(collection(db,'gifts'),{name,points:pts,value:val,stock,image:''});
+      await addDoc(collection(db,'gifts'),{name,points:pts,value:val,stock,image});
     }
     state.modal=null;state.editingGift=null;render();
   }

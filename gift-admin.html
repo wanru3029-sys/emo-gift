@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-MO 倚盟電訊 - 贈品後台管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#f5f5f3;min-height:100vh}
+.login-wrap{max-width:380px;margin:5rem auto;padding:1.5rem}
+.login-card{background:#fff;border-radius:16px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.logo-circle{width:52px;height:52px;border-radius:50%;background:#2c2c2a;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;margin-bottom:.5rem}
+.login-title{font-size:18px;font-weight:700;color:#2c2c2a}
+.login-sub{font-size:13px;color:#999;margin-top:4px}
+.form-group{margin-bottom:1rem}
+.form-label{font-size:13px;color:#666;margin-bottom:6px;display:block;font-weight:500}
+.form-input{width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:10px;font-size:15px;background:#fff;color:#2c2c2a;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:#2c2c2a}
+.btn{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fff;color:#2c2c2a;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn:hover{background:#f5f5f3}
+.btn-primary{background:#2c2c2a;border-color:#2c2c2a;color:#fff}
+.btn-primary:hover{background:#444}
+.btn-sm{width:auto;padding:6px 14px;font-size:13px;border-radius:8px;margin-top:0}
+.btn-danger{background:#fff5f5;border-color:#fca5a5;color:#dc2626}
+.btn-danger:hover{background:#fee2e2}
+.btn-success{background:#f0fdf4;border-color:#86efac;color:#16a34a}
+.err{color:#dc2626;font-size:13px;margin-top:.5rem;text-align:center}
+.navbar{background:#2c2c2a;padding:0 1.5rem;display:flex;align-items:center;height:52px;gap:4px}
+.navbar-brand{color:#fff;font-weight:700;font-size:15px;margin-right:1rem;white-space:nowrap}
+.nav-tab{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;background:none;border:none;color:rgba(255,255,255,.6);transition:all .15s;white-space:nowrap}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+.nav-tab.active{color:#fff;background:rgba(255,255,255,.15);font-weight:600}
+.nav-logout{margin-left:auto;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;background:none;border:none;padding:6px 10px}
+.nav-logout:hover{color:#fff}
+.content{padding:1.5rem;max-width:1100px;margin:0 auto}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
+.stat-card{background:#fff;border-radius:12px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-label{font-size:12px;color:#999;margin-bottom:4px;font-weight:500}
+.stat-value{font-size:26px;font-weight:700;color:#2c2c2a}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.section-title{font-size:16px;font-weight:700;color:#2c2c2a}
+.table-wrap{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+th{text-align:left;padding:10px 14px;font-weight:600;color:#999;border-bottom:1px solid #f0f0ee;font-size:12px;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid #f8f8f6;color:#2c2c2a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+.store-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;background:#f0f0ee;color:#666;font-weight:500}
+.badge-pts{background:#dcfce7;color:#16a34a;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge-val{background:#fee2e2;color:#dc2626;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.filter-bar{display:flex;gap:8px;margin-bottom:.75rem;flex-wrap:wrap}
+.filter-select{padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff;color:#2c2c2a;outline:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:1rem;color:#2c2c2a}
+.modal-footer{display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end}
+.stock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sig-img{width:100px;height:45px;border:1px solid #eee;border-radius:6px;object-fit:contain}
+.change-pos{color:#16a34a;font-weight:600}
+.change-neg{color:#dc2626;font-weight:600}
+.loading{text-align:center;padding:3rem;color:#999;font-size:14px}
+.spinner{display:inline-block;width:24px;height:24px;border:3px solid #eee;border-top-color:#2c2c2a;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.75rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-row td{text-align:center;color:#bbb;padding:2.5rem!important}
+.store-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem}
+.store-sum-card{border-radius:12px;padding:1.25rem}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading"><div class="spinner"></div><br>載入中...</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0z4t9S2mRdQZ9Q6kExa3SuFgjNZmskSw",
+  authDomain: "emo-gift-platform.firebaseapp.com",
+  projectId: "emo-gift-platform",
+  storageBucket: "emo-gift-platform.firebasestorage.app",
+  messagingSenderId: "251699644492",
+  appId: "1:251699644492:web:da3f8739bd1256f83f0ce9"
+};
+
+const fireapp = initializeApp(firebaseConfig);
+const db = getFirestore(fireapp);
+
+const STORES = ['鼎山','陽明','後昌','仁雄','凱旋'];
+const STORE_COLORS = {
+  '鼎山':{bg:'#B5D4F4',text:'#0C447C'},
+  '陽明':{bg:'#C0DD97',text:'#27500A'},
+  '後昌':{bg:'#FAC775',text:'#633806'},
+  '仁雄':{bg:'#CECBF6',text:'#3C3489'},
+  '凱旋':{bg:'#F4C0D1',text:'#72243E'},
+};
+
+// 預設管理員帳號（之後可在後台新增更多）
+const DEFAULT_USERS = [
+  {username:'admin',password:'emo2026',role:'admin',name:'總管理員',store:''},
+];
+
+let state = {
+  loggedIn: false,
+  currentUser: null,
+  tab: 'dashboard',
+  modal: null,
+  editingGift: null,
+  filterStore: '',
+  filterDate: '',
+  gifts: [],
+  orders: [],
+  inventoryHistory: [],
+  users: [...DEFAULT_USERS],
+  loading: true,
+};
+
+// 即時監聽
+onSnapshot(collection(db, 'gifts'), snap => {
+  state.gifts = snap.docs.map(d => ({id:d.id,...d.data()}));
+  if(!state.loading) render();
+});
+onSnapshot(collection(db, 'orders'), snap => {
+  state.orders = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>b.timestamp?.localeCompare(a.timestamp||'')||0);
+  if(!state.loading) render();
+});
+onSnapshot(collection(db, 'inventoryHistory'), snap => {
+  state.inventoryHistory = snap.docs.map(d => ({id:d.id,...d.data()})).sort((a,b)=>b.timestamp?.localeCompare(a.timestamp||'')||0);
+  state.loading = false;
+  render();
+});
+
+function render() {
+  const app = document.getElementById('app');
+  if(state.loading) { app.innerHTML = '<div class="loading"><div class="spinner"></div><br>連線中...</div>'; return; }
+  if(!state.loggedIn) { app.innerHTML = renderLogin(); attachEvents(); return; }
+  app.innerHTML = renderAdmin();
+  attachEvents();
+}
+
+function renderLogin() {
+  return `<div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-circle">E-MO</div>
+        <div class="login-title">倚盟電訊後台管理</div>
+        <div class="login-sub">贈品兌換系統</div>
+      </div>
+      <div class="form-group"><label class="form-label">帳號</label><input class="form-input" id="lu" type="text" placeholder="請輸入帳號"></div>
+      <div class="form-group"><label class="form-label">密碼</label><input class="form-input" id="lp" type="password" placeholder="請輸入密碼"></div>
+      <button class="btn btn-primary" data-action="doLogin">登入</button>
+      <div id="lerr" class="err"></div>
+    </div>
+  </div>`;
+}
+
+function renderAdmin() {
+  const isAdmin = state.currentUser?.role === 'admin';
+  const tabs = [
+    {id:'dashboard',label:'總覽'},
+    {id:'gifts',label:'贈品管理'},
+    {id:'orders',label:'兌換紀錄'},
+    {id:'inventory',label:'庫存紀錄'},
+    {id:'stores',label:'門市管理'},
+    ...(isAdmin?[{id:'users',label:'帳號管理'}]:[])
+  ];
+  return `<div>
+    <div class="navbar">
+      <span class="navbar-brand">E-MO 倚盟電訊</span>
+      ${tabs.map(t=>`<button class="nav-tab${state.tab===t.id?' active':''}" data-action="tab" data-tab="${t.id}">${t.label}</button>`).join('')}
+      <button class="nav-logout" data-action="logout">登出</button>
+    </div>
+    <div class="content">
+      ${state.tab==='dashboard'?renderDashboard():''}
+      ${state.tab==='gifts'?renderGifts():''}
+      ${state.tab==='orders'?renderOrders():''}
+      ${state.tab==='inventory'?renderInventory():''}
+      ${state.tab==='stores'?renderStores():''}
+      ${state.tab==='users'&&isAdmin?renderUsers():''}
+    </div>
+    ${state.modal?renderModal():''}
+  </div>`;
+}
+
+function renderDashboard() {
+  const today = new Date().toISOString().slice(0,10);
+  const todayOrders = state.orders.filter(o=>o.date===today).length;
+  const totalStock = state.gifts.reduce((a,g)=>a+STORES.reduce((b,s)=>b+(g.stock?.[s]||0),0),0);
+  return `<div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">總兌換筆數</div><div class="stat-value">${state.orders.length}</div></div>
+      <div class="stat-card"><div class="stat-label">今日兌換</div><div class="stat-value">${todayOrders}</div></div>
+      <div class="stat-card"><div class="stat-label">贈品種類</div><div class="stat-value">${state.gifts.length}</div></div>
+      <div class="stat-card"><div class="stat-label">總庫存數</div><div class="stat-value">${totalStock}</div></div>
+    </div>
+    <div class="store-summary-grid">
+      ${STORES.map(s=>{
+        const c=STORE_COLORS[s];
+        const cnt=state.orders.filter(o=>o.store===s).length;
+        const stk=state.gifts.reduce((a,g)=>a+(g.stock?.[s]||0),0);
+        return `<div class="store-sum-card" style="background:${c.bg}">
+          <div style="font-size:15px;font-weight:700;color:${c.text}">${s}店</div>
+          <div style="font-size:12px;color:${c.text};margin-top:6px">兌換：${cnt} 筆</div>
+          <div style="font-size:12px;color:${c.text}">庫存：${stk} 件</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="section-title" style="margin-bottom:.75rem">最近兌換紀錄</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>日期</th><th>門市</th><th>贈品</th><th>客戶</th><th>類型</th><th>店員</th></tr></thead>
+        <tbody>
+          ${state.orders.slice(0,10).map(o=>`<tr>
+            <td>${o.date}</td>
+            <td><span class="store-badge" style="background:${STORE_COLORS[o.store]?.bg};color:${STORE_COLORS[o.store]?.text}">${o.store}店</span></td>
+            <td>${o.giftName}</td><td>${o.customerName}</td>
+            <td><span class="tag">${o.type}</span></td><td>${o.staffId}</td>
+          </tr>`).join('')}
+          ${state.orders.length===0?`<tr class="empty-row"><td colspan="6">暫無紀錄</td></tr>`:''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderGifts() {
+  return `<div>
+    <div class="section-header">
+      <div class="section-title">贈品管理</div>
+      <button class="btn btn-primary btn-sm" data-action="openAddGift">+ 新增贈品</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>贈品名稱</th><th>點數</th><th>價值</th>${STORES.map(s=>`<th>${s}</th>`).join('')}<th>操作</th></tr></thead>
+        <tbody>
+          ${state.gifts.map(g=>`<tr>
+            <td style="font-weight:600">${g.name}</td>
+            <td><span class="badge-pts">${g.points}點</span></td>
+            <td>${g.value}元</td>
+            ${STORES.map(s=>`<td style="color:${(g.stock?.[s]||0)===0?'#dc2626':''};font-weight:${(g.stock?.[s]||0)===0?'600':''}">${g.stock?.[s]||0}</td>`).join('')}
+            <td style="white-space:nowrap">
+              <button class="btn btn-sm" data-action="editGift" data-gid="${g.id}" style="margin-right:4px">編輯</button>
+              <button class="btn btn-sm btn-danger" data-action="deleteGift" data-gid="${g.id}">刪除</button>
+            </td>
+          </tr>`).join('')}
+          ${state.gifts.length===0?`<tr class="empty-row"><td colspan="${5+STORES.length}">尚無贈品，請新增</td></tr>`:''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderOrders() {
+  let filtered = state.orders;
+  if(state.filterStore && state.filterStore!=='全部') filtered=filtered.filter(o=>o.store===state.filterStore);
+  if(state.filterDate) filtered=filtered.filter(o=>o.date===state.filterDate);
+  return `<div>
+    <div class="section-title" style="margin-bottom:.75rem">兌換紀錄</div>
+    <div class="filter-bar">
+      <select class="filter-select" id="fs" data-action="filterStore">
+        <option value="">全部門市</option>
+        ${STORES.map(s=>`<option${state.filterStore===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      <input type="date" class="filter-select" id="fd" value="${state.filterDate}" data-action="filterDate">
+      <button class="btn btn-sm" data-action="clearFilter">清除篩選</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>日期</th><th>門市</th><th>贈品</th><th>客戶</th><th>電話</th><th>類型</th><th>店員</th><th>簽名</th></tr></thead>
+        <tbody>
+          ${filtered.map(o=>`<tr>
+            <td>${o.date}</td>
+            <td><span class="store-badge" style="background:${STORE_COLORS[o.store]?.bg};color:${STORE_COLORS[o.store]?.text}">${o.store}店</span></td>
+            <td>${o.giftName}</td><td>${o.customerName}</td><td>${o.phone}</td>
+            <td><span class="tag">${o.type}</span></td><td>${o.staffId}</td>
+            <td>${o.signature?`<img class="sig-img" src="${o.signature}" alt="簽名">`:'—'}</td>
+          </tr>`).join('')}
+          ${filtered.length===0?`<tr class="empty-row"><td colspan="8">暫無紀錄</td></tr>`:''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderInventory() {
+  return `<div>
+    <div class="section-header">
+      <div class="section-title">庫存紀錄</div>
+      <button class="btn btn-primary btn-sm" data-action="openAdjust">+ 調整庫存</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>日期</th><th>門市</th><th>贈品</th><th>異動</th><th>原因</th><th>操作人</th></tr></thead>
+        <tbody>
+          ${state.inventoryHistory.map(h=>`<tr>
+            <td>${h.date}</td>
+            <td><span class="store-badge" style="background:${STORE_COLORS[h.store]?.bg};color:${STORE_COLORS[h.store]?.text}">${h.store}店</span></td>
+            <td>${h.giftName}</td>
+            <td class="${h.change>0?'change-pos':'change-neg'}">${h.change>0?'+':''}${h.change}</td>
+            <td><span class="tag">${h.reason}</span></td>
+            <td>${h.operator}</td>
+          </tr>`).join('')}
+          ${state.inventoryHistory.length===0?`<tr class="empty-row"><td colspan="6">暫無紀錄</td></tr>`:''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderStores() {
+  return `<div>
+    <div class="section-title" style="margin-bottom:1rem">門市管理</div>
+    <div class="store-summary-grid">
+      ${STORES.map(s=>{
+        const c=STORE_COLORS[s];
+        const cnt=state.orders.filter(o=>o.store===s).length;
+        const stk=state.gifts.reduce((a,g)=>a+(g.stock?.[s]||0),0);
+        return `<div class="store-sum-card" style="background:${c.bg};border:1px solid ${c.text}33">
+          <div style="font-size:16px;font-weight:700;color:${c.text}">${s}店</div>
+          <div style="font-size:13px;color:${c.text};margin-top:8px">總兌換：${cnt} 筆</div>
+          <div style="font-size:13px;color:${c.text}">總庫存：${stk} 件</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="section-title" style="margin-bottom:.75rem">各贈品庫存明細</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>贈品</th>${STORES.map(s=>`<th><span class="store-badge" style="background:${STORE_COLORS[s].bg};color:${STORE_COLORS[s].text}">${s}</span></th>`).join('')}<th>合計</th></tr></thead>
+        <tbody>
+          ${state.gifts.map(g=>{
+            const total=STORES.reduce((a,s)=>a+(g.stock?.[s]||0),0);
+            return `<tr><td style="font-weight:600">${g.name}</td>${STORES.map(s=>`<td style="color:${(g.stock?.[s]||0)===0?'#dc2626':''};">${g.stock?.[s]||0}</td>`).join('')}<td style="font-weight:600">${total}</td></tr>`;
+          }).join('')}
+          ${state.gifts.length===0?`<tr class="empty-row"><td colspan="${STORES.length+2}">尚無贈品</td></tr>`:''}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderUsers() {
+  return `<div>
+    <div class="section-header">
+      <div class="section-title">帳號管理</div>
+      <button class="btn btn-primary btn-sm" data-action="openAddUser">+ 新增帳號</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>帳號</th><th>姓名</th><th>角色</th><th>門市</th><th>操作</th></tr></thead>
+        <tbody>
+          ${state.users.map((u,i)=>`<tr>
+            <td>${u.username}</td><td>${u.name}</td>
+            <td><span class="tag">${u.role==='admin'?'管理員':'店員'}</span></td>
+            <td>${u.store||'全部'}</td>
+            <td>${i===0?'—':`<button class="btn btn-sm btn-danger" data-action="deleteUser" data-uid="${i}">刪除</button>`}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderModal() {
+  if(state.modal==='addGift'||state.modal==='editGift') {
+    const g = state.editingGift || {name:'',points:10,value:300,stock:{}};
+    return `<div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-title">${state.modal==='editGift'?'編輯贈品':'新增贈品'}</div>
+        <div class="form-group"><label class="form-label">贈品名稱</label><input class="form-input" id="m-name" value="${g.name}" placeholder="請輸入贈品名稱"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="form-group"><label class="form-label">點數</label><input class="form-input" id="m-pts" type="number" value="${g.points}"></div>
+          <div class="form-group"><label class="form-label">價值（元）</label><input class="form-input" id="m-val" type="number" value="${g.value}"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">各門市庫存</label>
+          <div class="stock-grid">
+            ${STORES.map(s=>`<div><label class="form-label">${s}店</label><input class="form-input" id="m-s-${s}" type="number" value="${g.stock?.[s]||0}"></div>`).join('')}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm" data-action="closeModal">取消</button>
+          <button class="btn btn-primary btn-sm" data-action="saveGift">儲存</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(state.modal==='adjust') {
+    return `<div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-title">調整庫存</div>
+        <div class="form-group"><label class="form-label">門市</label>
+          <select class="form-input" id="adj-store">${STORES.map(s=>`<option>${s}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label class="form-label">贈品</label>
+          <select class="form-input" id="adj-gift">${state.gifts.map(g=>`<option value="${g.id}">${g.name}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label class="form-label">異動數量（正數=補貨，負數=扣除）</label>
+          <input class="form-input" id="adj-qty" type="number" value="0">
+        </div>
+        <div class="form-group"><label class="form-label">原因</label>
+          <select class="form-input" id="adj-reason"><option>補貨</option><option>盤點調整</option><option>損耗</option><option>其他</option></select>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm" data-action="closeModal">取消</button>
+          <button class="btn btn-primary btn-sm" data-action="saveAdjust">確認</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(state.modal==='addUser') {
+    return `<div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-title">新增帳號</div>
+        <div class="form-group"><label class="form-label">帳號</label><input class="form-input" id="u-un" placeholder="請輸入帳號"></div>
+        <div class="form-group"><label class="form-label">密碼</label><input class="form-input" id="u-pw" type="password" placeholder="請輸入密碼"></div>
+        <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="u-nm" placeholder="請輸入姓名"></div>
+        <div class="form-group"><label class="form-label">角色</label>
+          <select class="form-input" id="u-role"><option value="staff">店員</option><option value="admin">管理員</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">門市</label>
+          <select class="form-input" id="u-store"><option value="">全部</option>${STORES.map(s=>`<option>${s}</option>`).join('')}</select>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm" data-action="closeModal">取消</button>
+          <button class="btn btn-primary btn-sm" data-action="saveUser">儲存</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => { el.onclick = handleAction; });
+  const fd = document.getElementById('fd');
+  if(fd) fd.onchange = e => { state.filterDate = e.target.value; render(); };
+  const fs = document.getElementById('fs');
+  if(fs) fs.onchange = e => { state.filterStore = e.target.value; render(); };
+  // Enter on login
+  const lp = document.getElementById('lp');
+  if(lp) lp.onkeydown = e => { if(e.key==='Enter') document.querySelector('[data-action="doLogin"]')?.click(); };
+}
+
+async function handleAction(e) {
+  const action = e.currentTarget.dataset.action;
+  if(action==='doLogin') {
+    const u=document.getElementById('lu').value.trim();
+    const p=document.getElementById('lp').value;
+    const user=state.users.find(x=>x.username===u&&x.password===p);
+    if(user){state.loggedIn=true;state.currentUser=user;state.tab='dashboard';render();}
+    else{document.getElementById('lerr').textContent='帳號或密碼錯誤';}
+  }
+  else if(action==='logout'){state.loggedIn=false;state.currentUser=null;render();}
+  else if(action==='tab'){state.tab=e.currentTarget.dataset.tab;render();}
+  else if(action==='openAddGift'){state.modal='addGift';state.editingGift=null;render();}
+  else if(action==='editGift'){
+    const g=state.gifts.find(x=>x.id===e.currentTarget.dataset.gid);
+    state.editingGift=JSON.parse(JSON.stringify(g));
+    state.modal='editGift';render();
+  }
+  else if(action==='deleteGift'){
+    if(confirm('確定要刪除此贈品？')){
+      await deleteDoc(doc(db,'gifts',e.currentTarget.dataset.gid));
+    }
+  }
+  else if(action==='saveGift'){
+    const name=document.getElementById('m-name').value.trim();
+    const pts=parseInt(document.getElementById('m-pts').value)||0;
+    const val=parseInt(document.getElementById('m-val').value)||0;
+    const stock={};
+    STORES.forEach(s=>{stock[s]=parseInt(document.getElementById('m-s-'+s).value)||0;});
+    if(!name){alert('請填寫贈品名稱');return;}
+    if(state.modal==='editGift'){
+      await updateDoc(doc(db,'gifts',state.editingGift.id),{name,points:pts,value:val,stock});
+    } else {
+      await addDoc(collection(db,'gifts'),{name,points:pts,value:val,stock,image:''});
+    }
+    state.modal=null;state.editingGift=null;render();
+  }
+  else if(action==='closeModal'){state.modal=null;state.editingGift=null;render();}
+  else if(action==='openAdjust'){state.modal='adjust';render();}
+  else if(action==='saveAdjust'){
+    const store=document.getElementById('adj-store').value;
+    const gid=document.getElementById('adj-gift').value;
+    const qty=parseInt(document.getElementById('adj-qty').value)||0;
+    const reason=document.getElementById('adj-reason').value;
+    const g=state.gifts.find(x=>x.id===gid);
+    if(g){
+      const newStock={...g.stock};
+      newStock[store]=Math.max(0,(newStock[store]||0)+qty);
+      await updateDoc(doc(db,'gifts',gid),{stock:newStock});
+      const today=new Date().toISOString().slice(0,10);
+      await addDoc(collection(db,'inventoryHistory'),{
+        date:today,timestamp:new Date().toISOString(),
+        store,giftName:g.name,change:qty,reason,
+        operator:state.currentUser?.name||'管理員'
+      });
+    }
+    state.modal=null;render();
+  }
+  else if(action==='filterStore'){state.filterStore=e.currentTarget.value;render();}
+  else if(action==='clearFilter'){state.filterStore='';state.filterDate='';render();}
+  else if(action==='openAddUser'){state.modal='addUser';render();}
+  else if(action==='saveUser'){
+    const un=document.getElementById('u-un').value.trim();
+    const pw=document.getElementById('u-pw').value;
+    const nm=document.getElementById('u-nm').value.trim();
+    const role=document.getElementById('u-role').value;
+    const store=document.getElementById('u-store').value;
+    if(!un||!pw||!nm){alert('請填寫所有欄位');return;}
+    state.users.push({username:un,password:pw,role,name:nm,store});
+    state.modal=null;render();
+  }
+  else if(action==='deleteUser'){
+    const idx=parseInt(e.currentTarget.dataset.uid);
+    if(confirm('確定刪除此帳號？')){state.users.splice(idx,1);render();}
+  }
+}
+</script>
+</body>
+</html>

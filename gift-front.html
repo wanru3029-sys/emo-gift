@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V姐姐獨家送很大 - 贈品兌換平台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#f8f7f4;min-height:100vh}
+.page{padding:1.5rem;max-width:480px;margin:0 auto}
+.logo-area{text-align:center;padding:1.5rem 0 1rem}
+.logo-circle{width:56px;height:56px;border-radius:50%;background:#2c2c2a;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;margin-bottom:.75rem}
+.main-title{font-size:22px;font-weight:700;color:#2c2c2a;line-height:1.5}
+.step-row{display:flex;align-items:center;gap:8px;margin:.4rem 0;font-size:14px}
+.step-done{color:#1d9e75}
+.step-current{color:#888}
+.store-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1.25rem}
+.store-card{background:#fff;border:1px solid #e0e0e0;border-radius:14px;padding:1.5rem 1rem;text-align:center;cursor:pointer;font-size:16px;font-weight:600;color:#2c2c2a;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.store-card:hover{border-color:#aaa;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.store-card.solo{grid-column:1/-1}
+.gift-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1rem}
+.gift-card{background:#fff;border:1.5px solid #e0e0e0;border-radius:14px;overflow:hidden;cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.gift-card:hover{border-color:#aaa;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.gift-card.selected{border:2.5px solid #1d9e75;box-shadow:0 0 0 3px rgba(29,158,117,.15)}
+.gift-card.out-of-stock{opacity:.45;cursor:not-allowed}
+.gift-img{width:100%;aspect-ratio:1;background:#f0efec;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.gift-img img{width:100%;height:100%;object-fit:cover}
+.gift-img .no-img{font-size:36px;color:#ccc}
+.gift-badges{position:absolute;top:7px;left:7px;display:flex;flex-direction:column;gap:4px}
+.badge-pts{background:#1d9e75;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.badge-val{background:#e24b4a;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.badge-sold{background:#888;color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.gift-info{padding:8px 10px 12px}
+.gift-name{font-size:13px;font-weight:600;color:#2c2c2a}
+.gift-stock{font-size:11px;color:#999;margin-top:3px}
+.form-group{margin-bottom:1rem}
+.form-label{font-size:13px;color:#666;margin-bottom:6px;display:block;font-weight:500}
+.form-input{width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:10px;font-size:15px;background:#fff;color:#2c2c2a;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:#1d9e75}
+.signature-box{width:100%;height:200px;border:2px dashed #ddd;border-radius:10px;background:#fff;cursor:crosshair;touch-action:none;display:block}
+.btn{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;background:#fff;color:#2c2c2a;font-size:15px;font-weight:600;cursor:pointer;margin-top:.5rem;transition:all .15s}
+.btn:hover{background:#f5f5f3}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#2c2c2a;border-color:#2c2c2a;color:#fff}
+.btn-primary:hover{background:#444}
+.btn-sm{width:auto;padding:7px 16px;font-size:13px;margin-top:0;border-radius:8px}
+.back-link{display:flex;align-items:center;justify-content:center;gap:4px;font-size:13px;color:#999;cursor:pointer;margin-top:.75rem;background:none;border:none;width:100%}
+.back-link:hover{color:#555}
+.success-wrap{text-align:center;padding:3rem 1rem}
+.success-icon{width:72px;height:72px;border-radius:50%;background:#e1f5ee;display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:1rem}
+.loading{text-align:center;padding:3rem;color:#999;font-size:14px}
+.spinner{display:inline-block;width:24px;height:24px;border:3px solid #eee;border-top-color:#1d9e75;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.75rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading"><div class="spinner"></div><br>載入中...</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0z4t9S2mRdQZ9Q6kExa3SuFgjNZmskSw",
+  authDomain: "emo-gift-platform.firebaseapp.com",
+  projectId: "emo-gift-platform",
+  storageBucket: "emo-gift-platform.firebasestorage.app",
+  messagingSenderId: "251699644492",
+  appId: "1:251699644492:web:da3f8739bd1256f83f0ce9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const STORES = ['鼎山','陽明','後昌','仁雄','凱旋'];
+const STORE_COLORS = {
+  '鼎山':{bg:'#B5D4F4',text:'#0C447C'},
+  '陽明':{bg:'#C0DD97',text:'#27500A'},
+  '後昌':{bg:'#FAC775',text:'#633806'},
+  '仁雄':{bg:'#CECBF6',text:'#3C3489'},
+  '凱旋':{bg:'#F4C0D1',text:'#72243E'},
+};
+
+let state = {
+  view: 'stores',
+  selectedStore: null,
+  selectedGift: null,
+  gifts: [],
+  loading: true
+};
+
+let signCanvas = null, signing = false, signCtx = null;
+
+// 即時監聽贈品庫存
+onSnapshot(collection(db, 'gifts'), (snapshot) => {
+  state.gifts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+  state.loading = false;
+  render();
+});
+
+function render() {
+  const app = document.getElementById('app');
+  if(state.loading) { app.innerHTML = '<div class="loading"><div class="spinner"></div><br>載入中...</div>'; return; }
+  if(state.view === 'stores') app.innerHTML = renderStores();
+  else if(state.view === 'gifts') app.innerHTML = renderGifts();
+  else if(state.view === 'sign') app.innerHTML = renderSign();
+  else if(state.view === 'done') app.innerHTML = renderDone();
+  if(state.view === 'sign') initCanvas();
+  attachEvents();
+}
+
+function renderStores() {
+  return `<div class="page">
+    <div class="logo-area">
+      <div class="logo-circle">V姐</div>
+      <div class="main-title">V姐姐獨家送很大<br>贈品兌換平台</div>
+    </div>
+    <div class="store-grid">
+      ${STORES.map((s,i) => `<div class="store-card ${i===4?'solo':''}" data-action="selectStore" data-store="${s}" style="border-top:4px solid ${STORE_COLORS[s].text}">${s}店</div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderGifts() {
+  return `<div class="page">
+    <div class="logo-area">
+      <div class="logo-circle">V姐</div>
+      <div class="main-title">V姐姐獨家送很大<br>贈品兌換平台</div>
+    </div>
+    <div class="step-row"><span class="step-done">✅ 已選 - ${state.selectedStore}店</span></div>
+    <div class="step-row"><span class="step-current">⭕ 你今天要換什麼贈品呢？</span></div>
+    <div class="gift-grid">
+      ${state.gifts.map(g => {
+        const stock = (g.stock && g.stock[state.selectedStore]) || 0;
+        const oos = stock === 0;
+        const sel = state.selectedGift === g.id ? ' selected' : '';
+        return `<div class="gift-card${sel}${oos?' out-of-stock':''}" ${oos?'':'data-action="selectGift"'} data-gid="${g.id}">
+          <div class="gift-img">
+            ${g.image ? `<img src="${g.image}" alt="${g.name}">` : `<div class="no-img">🎁</div>`}
+            <div class="gift-badges">
+              <span class="badge-pts">${g.points}點</span>
+              <span class="badge-val">${g.value}元</span>
+              ${oos ? '<span class="badge-sold">已售完</span>' : ''}
+            </div>
+          </div>
+          <div class="gift-info">
+            <div class="gift-name">${g.name}</div>
+            <div class="gift-stock">庫存：${stock} 件</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn btn-primary" data-action="goSign" style="margin-top:1.25rem" ${state.selectedGift?'':'disabled'}>下一步</button>
+    <button class="back-link" data-action="back">← 返回</button>
+  </div>`;
+}
+
+function renderSign() {
+  const gift = state.gifts.find(g => g.id === state.selectedGift);
+  return `<div class="page">
+    <div class="logo-area">
+      <div class="logo-circle">V姐</div>
+      <div class="main-title">V姐姐獨家送很大<br>贈品兌換平台</div>
+    </div>
+    <div class="step-row"><span class="step-done">✅ 已選 - ${state.selectedStore}店</span></div>
+    <div class="step-row"><span class="step-done">✅ 已選 - ${gift?.name || ''} - 1件</span></div>
+    <div class="step-row"><span class="step-current">⭕ 最後一步了：填一下資料和簽個名</span></div>
+    <div style="margin-top:1rem">
+      <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="inp-name" type="text" placeholder="請輸入姓名"></div>
+      <div class="form-group"><label class="form-label">電話</label><input class="form-input" id="inp-phone" type="tel" placeholder="請輸入電話"></div>
+      <div class="form-group">
+        <label class="form-label">請簽名</label>
+        <canvas class="signature-box" id="sig-canvas" width="440" height="200"></canvas>
+        <button class="btn btn-sm" data-action="clearSig" style="margin-top:8px">重新簽名</button>
+      </div>
+      <div style="font-size:16px;font-weight:700;margin:.75rem 0 .5rem;color:#2c2c2a">簽完名了嗎？跟店員說一下</div>
+      <div class="form-group"><label class="form-label">請選擇類型</label>
+        <select class="form-input" id="inp-type">
+          <option value="">請選擇類型</option>
+          <option>新辦</option><option>續約</option><option>升級</option><option>加購</option><option>其他</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">店員編號</label><input class="form-input" id="inp-staff" type="text" placeholder="請輸入店員編號"></div>
+      <button class="btn btn-primary" data-action="submitOrder" style="margin-top:.5rem" id="submit-btn">確認兌換</button>
+      <button class="back-link" data-action="back">← 返回</button>
+    </div>
+  </div>`;
+}
+
+function renderDone() {
+  return `<div class="page">
+    <div class="success-wrap">
+      <div class="success-icon">✅</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:.5rem">兌換完成！</div>
+      <div style="font-size:14px;color:#999;margin-bottom:2rem">感謝您的選購，祝您使用愉快 🎉</div>
+      <button class="btn btn-primary" data-action="restart">返回首頁</button>
+    </div>
+  </div>`;
+}
+
+function initCanvas() {
+  signCanvas = document.getElementById('sig-canvas');
+  if(!signCanvas) return;
+  signCtx = signCanvas.getContext('2d');
+  signCtx.strokeStyle = '#1a1a1a';
+  signCtx.lineWidth = 2.5;
+  signCtx.lineCap = 'round';
+  signCtx.lineJoin = 'round';
+  const getPos = (e) => {
+    const r = signCanvas.getBoundingClientRect();
+    const sx = signCanvas.width / r.width;
+    const sy = signCanvas.height / r.height;
+    if(e.touches) return {x:(e.touches[0].clientX-r.left)*sx, y:(e.touches[0].clientY-r.top)*sy};
+    return {x:(e.clientX-r.left)*sx, y:(e.clientY-r.top)*sy};
+  };
+  signCanvas.onmousedown = signCanvas.ontouchstart = e => { e.preventDefault(); signing=true; const p=getPos(e); signCtx.beginPath(); signCtx.moveTo(p.x,p.y); };
+  signCanvas.onmousemove = signCanvas.ontouchmove = e => { e.preventDefault(); if(!signing) return; const p=getPos(e); signCtx.lineTo(p.x,p.y); signCtx.stroke(); };
+  signCanvas.onmouseup = signCanvas.ontouchend = () => { signing=false; };
+}
+
+function attachEvents() {
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.onclick = handleAction;
+  });
+}
+
+async function handleAction(e) {
+  const action = e.currentTarget.dataset.action;
+  if(action === 'selectStore') { state.selectedStore = e.currentTarget.dataset.store; state.view = 'gifts'; render(); }
+  else if(action === 'selectGift') { state.selectedGift = e.currentTarget.dataset.gid; render(); }
+  else if(action === 'goSign') { if(state.selectedGift) { state.view = 'sign'; render(); } }
+  else if(action === 'back') {
+    if(state.view === 'gifts') { state.view = 'stores'; state.selectedStore = null; state.selectedGift = null; }
+    else if(state.view === 'sign') { state.view = 'gifts'; }
+    render();
+  }
+  else if(action === 'clearSig') { if(signCtx) signCtx.clearRect(0,0,signCanvas.width,signCanvas.height); }
+  else if(action === 'submitOrder') {
+    const name = document.getElementById('inp-name').value.trim();
+    const phone = document.getElementById('inp-phone').value.trim();
+    const type = document.getElementById('inp-type').value;
+    const staff = document.getElementById('inp-staff').value.trim();
+    if(!name || !phone || !type || !staff) { alert('請填寫所有欄位'); return; }
+    const sig = signCanvas ? signCanvas.toDataURL() : '';
+    const gift = state.gifts.find(g => g.id === state.selectedGift);
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = '處理中...';
+    try {
+      // 扣庫存
+      const giftRef = doc(db, 'gifts', state.selectedGift);
+      const newStock = {...gift.stock};
+      newStock[state.selectedStore] = Math.max(0, (newStock[state.selectedStore]||0) - 1);
+      await updateDoc(giftRef, {stock: newStock});
+      // 新增訂單
+      await addDoc(collection(db, 'orders'), {
+        store: state.selectedStore,
+        giftId: state.selectedGift,
+        giftName: gift?.name || '',
+        customerName: name,
+        phone,
+        date: new Date().toISOString().slice(0,10),
+        timestamp: new Date().toISOString(),
+        staffId: staff,
+        type,
+        signature: sig
+      });
+      state.view = 'done';
+      render();
+    } catch(err) {
+      alert('發生錯誤，請重試');
+      btn.disabled = false; btn.textContent = '確認兌換';
+    }
+  }
+  else if(action === 'restart') { state.view = 'stores'; state.selectedStore = null; state.selectedGift = null; render(); }
+}
+</script>
+</body>
+</html>

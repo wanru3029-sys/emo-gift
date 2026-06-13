@@ -156,7 +156,7 @@ function renderGifts() {
         const ob = b.order || ORDER_MAP[b.name] || 999;
         return oa - ob;
       });
-      const perPage = 12;
+      const perPage = 20;
       const totalPages = Math.ceil(sorted.length/perPage);
       const page = state.giftPage;
       const paged = sorted.slice((page-1)*perPage, page*perPage);

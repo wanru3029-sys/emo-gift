@@ -341,12 +341,12 @@ function renderOrders() {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>日期</th><th>門市</th><th>贈品</th><th>客戶</th><th>電話</th><th>類型</th><th>店員</th><th>簽名</th></tr></thead>
+        <thead><tr><th>日期</th><th>門市</th><th>贈品</th><th>數量</th><th>客戶</th><th>電話</th><th>類型</th><th>店員</th><th>簽名</th></tr></thead>
         <tbody>
           ${filtered.map(o=>`<tr>
             <td>${o.date}</td>
             <td><span class="store-badge" style="background:${STORE_COLORS[o.store]?.bg};color:${STORE_COLORS[o.store]?.text}">${o.store}店</span></td>
-            <td>${o.giftName}</td><td>${o.customerName}</td><td>${o.phone}</td>
+            <td>${o.giftName}</td><td>${o.quantity||1}</td><td>${o.customerName}</td><td>${o.phone}</td>
             <td><span class="tag">${o.type}</span></td><td>${o.staffId}</td>
             <td>${o.signature?`<img class="sig-img" src="${o.signature}" alt="簽名">`:'—'}</td>
           </tr>`).join('')}
@@ -427,7 +427,7 @@ function renderUsers() {
             <td>${u.username}</td><td>${u.name}</td>
             <td><span class="tag">${u.role==='admin'?'管理員':'店員'}</span></td>
             <td>${u.store||'全部'}</td>
-            <td>${u.username===state.currentUser?.username?'—':`<button class="btn btn-sm btn-danger" data-action="deleteUser" data-uid="${i}">刪除</button>`}</td>
+            <td>${(u.username===state.currentUser?.username)?'—':`<button class="btn btn-sm btn-danger" data-action="deleteUser" data-uid="${i}">刪除</button>`}</td>
           </tr>`).join('')}
         </tbody>
       </table>

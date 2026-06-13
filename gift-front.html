@@ -85,6 +85,7 @@ let state = {
   view: 'stores',
   selectedStore: null,
   selectedGift: null,
+  selectedQty: 1,
   gifts: [],
   giftPage: 1,
   loading: true
@@ -174,7 +175,18 @@ function renderGifts() {
         }).join('')}
       </div>${pagination}`;
     })()}
-    <button class="btn btn-primary" data-action="goSign" style="margin-top:1.25rem" ${state.selectedGift?'':'disabled'}>下一步</button>
+    ${state.selectedGift ? (() => {
+      const selGift = state.gifts.find(g => g.id === state.selectedGift);
+      const maxQty = (selGift?.stock && selGift.stock[state.selectedStore]) || 1;
+      return `<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1.25rem;padding:12px;background:var(--color-background-secondary,#f5f5f3);border-radius:12px">
+        <span style="font-size:14px;color:#666">數量</span>
+        <button data-action="qtyMinus" style="width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1" ${state.selectedQty<=1?'disabled':''}>−</button>
+        <span style="font-size:20px;font-weight:700;min-width:32px;text-align:center">${state.selectedQty}</span>
+        <button data-action="qtyPlus" style="width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1" ${state.selectedQty>=maxQty?'disabled':''}>+</button>
+        <span style="font-size:12px;color:#999">（庫存 ${maxQty} 件）</span>
+      </div>`;
+    })() : ''}
+    <button class="btn btn-primary" data-action="goSign" style="margin-top:.75rem" ${state.selectedGift?'':'disabled'}>下一步</button>
     <button class="back-link" data-action="back">上一步</button>
   </div>`;
 }
@@ -251,12 +263,18 @@ function attachEvents() {
 async function handleAction(e) {
   const action = e.currentTarget.dataset.action;
   if(action === 'selectStore') { state.selectedStore = e.currentTarget.dataset.store; state.view = 'gifts'; state.giftPage = 1; render(); }
-  else if(action === 'selectGift') { state.selectedGift = e.currentTarget.dataset.gid; render(); }
+  else if(action === 'selectGift') { state.selectedGift = e.currentTarget.dataset.gid; state.selectedQty = 1; render(); }
+  else if(action === 'qtyMinus') { if(state.selectedQty > 1) { state.selectedQty--; render(); } }
+  else if(action === 'qtyPlus') {
+    const g = state.gifts.find(x => x.id === state.selectedGift);
+    const max = (g?.stock && g.stock[state.selectedStore]) || 1;
+    if(state.selectedQty < max) { state.selectedQty++; render(); }
+  }
   else if(action === 'goSign') { if(state.selectedGift) { state.view = 'sign'; render(); } }
   else if(action === 'giftPagePrev') { state.giftPage = Math.max(1, state.giftPage-1); render(); }
   else if(action === 'giftPageNext') { state.giftPage++; render(); }
   else if(action === 'back') {
-    if(state.view === 'gifts') { state.view = 'stores'; state.selectedStore = null; state.selectedGift = null; }
+    if(state.view === 'gifts') { state.view = 'stores'; state.selectedStore = null; state.selectedGift = null; state.selectedQty = 1; }
     else if(state.view === 'sign') { state.view = 'gifts'; }
     render();
   }
@@ -275,13 +293,14 @@ async function handleAction(e) {
       // 扣庫存
       const giftRef = doc(db, 'gifts', state.selectedGift);
       const newStock = {...gift.stock};
-      newStock[state.selectedStore] = Math.max(0, (newStock[state.selectedStore]||0) - 1);
+      newStock[state.selectedStore] = Math.max(0, (newStock[state.selectedStore]||0) - state.selectedQty);
       await updateDoc(giftRef, {stock: newStock});
       // 新增訂單
       await addDoc(collection(db, 'orders'), {
         store: state.selectedStore,
         giftId: state.selectedGift,
         giftName: gift?.name || '',
+        quantity: state.selectedQty,
         customerName: name,
         phone,
         date: new Date().toISOString().slice(0,10),

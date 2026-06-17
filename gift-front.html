@@ -72,6 +72,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const IMG_BASE = 'https://wanru3029-sys.github.io/emo-gift/';
+function imgUrl(val) {
+  if(!val) return '';
+  if(val.startsWith('http')) return val;
+  return IMG_BASE + encodeURIComponent(val);
+}
+
 const STORES = ['鼎山','陽明','後昌','仁雄','凱旋'];
 const STORE_COLORS = {
   '鼎山':{bg:'#B5D4F4',text:'#0C447C'},
@@ -93,7 +100,6 @@ let state = {
 
 let signCanvas = null, signing = false, signCtx = null;
 
-// 即時監聽贈品庫存
 onSnapshot(collection(db, 'gifts'), (snapshot) => {
   state.gifts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
   state.loading = false;
@@ -124,6 +130,41 @@ function renderStores() {
 }
 
 function renderGifts() {
+  const ORDER_MAP = {
+    '鑽石筆':1,'日系軟毛牙刷組':2,'snoopy帆布拉鍊袋':3,'小兔兔大浴巾':4,'清潔科技海綿':5,
+    '大白鵝擦手巾':6,'矽膠圓形冰球模具':7,'28格方便藥盒':8,'可微波保鮮密封盒':9,'手提無印麻袋':10,
+    '日式便當袋':11,'KT計算機':12,'數碼配件收納包':13,'手機支架':14,'多用途便利大剪刀':15,
+    '雪尼爾吸水地墊':16,'釘書機':17,'隨身王妃梳':18,'304不銹鋼壓蒜器':19,'化妝包便攜旅行包':20,
+    '多功能隨身手機袋':21,'點點水桶拎包':22,
+    '名牌小側背包':23,'日式清新帆布包':24,'彩色電子數字鐘':25,'LED數字鐘':25,'靜音石英鬧鐘':26,
+    '彩虹水壺':27,'750ML泡茶壺':28,'真皮拉鍊常款錢包':29,'YSL帆布側肩包':30,'珊瑚絨冷氣蓋毯':31,
+    '不鏽鋼切菜刀':32,'手機自拍神器':33,'可微波三格容量餐盒':34,'手機護照斜跨包':35,
+    'Nike都會通勤後背包':36,'KAKAO Line Friend陶瓷便當保鮮碗':37,'BUZIO運動大容量水壺':38,
+    'SPICE多功能收納椅凳':39,'FUNFANS便攜隨身風扇':40,'PUKOMI童趣刺繡帆布托特包':41,'TNF澎澎雲朵包':42,
+    'Airplus真無線藍牙耳機':43,'ICOICE半導體製冷手持電扇':44,'UTTU人體工學記憶乳膠枕':45,
+    'SHIMOYAMA大容量透明抽屜收納櫃':46,'BUGANI震撼重低音藍牙喇叭':47,'FANDARE商務多功能斜背胸包':48,
+    'PowerGo迷你快充行動電源':49,
+    'RECONA多功能萬用不沾快煮鍋':50,'SmileSonic智能防水聲波電動牙刷':51,
+    'TravelMini 14吋日常輕旅箱':52,'TravelLite 18吋輕便行李箱':53,'Breeze360 360搖頭循環扇':54,
+    'KONKA迷你專業級輕盈筋膜槍':55,'PowerGo二合一無線充電盤':56,
+    'BeautyFlow沙龍級負離子護髮吹風機':57,'AirChef 7L大容量智能氣炸鍋':58,
+    'SteamPro專業級蒸氣手掛掛燙機':59,'TravelPro 28吋大容量鋁框行李箱':60,
+  };
+  const sorted = [...state.gifts].sort((a,b)=>{
+    const oa = a.order || ORDER_MAP[a.name] || 999;
+    const ob = b.order || ORDER_MAP[b.name] || 999;
+    return oa - ob;
+  });
+  const perPage = 20;
+  const totalPages = Math.ceil(sorted.length/perPage);
+  const page = state.giftPage;
+  const paged = sorted.slice((page-1)*perPage, page*perPage);
+  const pagination = totalPages>1 ? `<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:1rem;margin-bottom:.5rem">
+    <button class="btn btn-sm" data-action="giftPagePrev" ${page<=1?'disabled':''} style="padding:8px 16px;font-size:16px">‹</button>
+    <span style="font-size:13px;color:#666">${page} / ${totalPages}</span>
+    <button class="btn btn-sm" data-action="giftPageNext" ${page>=totalPages?'disabled':''} style="padding:8px 16px;font-size:16px">›</button>
+  </div>` : '';
+
   return `<div class="page">
     <div class="logo-area">
       <div class="logo-circle">V姐</div>
@@ -131,54 +172,20 @@ function renderGifts() {
     </div>
     <div class="step-row"><span class="step-done">✅ 已選 - ${state.selectedStore}店</span></div>
     <div class="step-row"><span class="step-current">⭕ 你今天要換什麼贈品呢？</span></div>
-    ${(()=>{
-      const ORDER_MAP = {
-        '鑽石筆':1,'日系軟毛牙刷組':2,'snoopy帆布拉鍊袋':3,'小兔兔大浴巾':4,'清潔科技海綿':5,
-        '大白鵝擦手巾':6,'矽膠圓形冰球模具':7,'28格方便藥盒':8,'可微波保鮮密封盒':9,'手提無印麻袋':10,
-        '日式便當袋':11,'KT計算機':12,'數碼配件收納包':13,'手機支架':14,'多用途便利大剪刀':15,
-        '雪尼爾吸水地墊':16,'釘書機':17,'隨身王妃梳':18,'304不銹鋼壓蒜器':19,'化妝包便攜旅行包':20,
-        '多功能隨身手機袋':21,'點點水桶拎包':22,
-        '名牌小側背包':23,'日式清新帆布包':24,'彩色電子數字鐘':25,'LED數字鐘':25,'靜音石英鬧鐘':26,
-        '彩虹水壺':27,'750ML泡茶壺':28,'真皮拉鍊常款錢包':29,'YSL帆布側肩包':30,'珊瑚絨冷氣蓋毯':31,
-        '不鏽鋼切菜刀':32,'手機自拍神器':33,'可微波三格容量餐盒':34,'手機護照斜跨包':35,
-        'Nike都會通勤後背包':36,'KAKAO Line Friend陶瓷便當保鮮碗':37,'BUZIO運動大容量水壺':38,
-        'SPICE多功能收納椅凳':39,'FUNFANS便攜隨身風扇':40,'PUKOMI童趣刺繡帆布托特包':41,'TNF澎澎雲朵包':42,
-        'Airplus真無線藍牙耳機':43,'ICOICE半導體製冷手持電扇':44,'UTTU人體工學記憶乳膠枕':45,
-        'SHIMOYAMA大容量透明抽屜收納櫃':46,'BUGANI震撼重低音藍牙喇叭':47,'FANDARE商務多功能斜背胸包':48,
-        'PowerGo迷你快充行動電源':49,
-        'RECONA多功能萬用不沾快煮鍋':50,'SmileSonic智能防水聲波電動牙刷':51,
-        'TravelMini 14吋日常輕旅箱':52,'TravelLite 18吋輕便行李箱':53,'Breeze360 360搖頭循環扇':54,
-        'KONKA迷你專業級輕盈筋膜槍':55,'PowerGo二合一無線充電盤':56,
-        'BeautyFlow沙龍級負離子護髮吹風機':57,'AirChef 7L大容量智能氣炸鍋':58,
-        'SteamPro專業級蒸氣手掛掛燙機':59,'TravelPro 28吋大容量鋁框行李箱':60,
-      };
-      const sorted = [...state.gifts].sort((a,b)=>{
-        const oa = a.order || ORDER_MAP[a.name] || 999;
-        const ob = b.order || ORDER_MAP[b.name] || 999;
-        return oa - ob;
-      });
-      const perPage = 20;
-      const totalPages = Math.ceil(sorted.length/perPage);
-      const page = state.giftPage;
-      const paged = sorted.slice((page-1)*perPage, page*perPage);
-      const pagination = totalPages>1 ? `<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:1rem;margin-bottom:.5rem">
-        <button class="btn btn-sm" data-action="giftPagePrev" ${page<=1?'disabled':''} style="padding:8px 16px;font-size:16px">‹</button>
-        <span style="font-size:13px;color:#666">${page} / ${totalPages}</span>
-        <button class="btn btn-sm" data-action="giftPageNext" ${page>=totalPages?'disabled':''} style="padding:8px 16px;font-size:16px">›</button>
-      </div>` : '';
-      return `<div class="gift-grid">
-        ${paged.map(g => {
-          const stock = (g.stock && g.stock[state.selectedStore]) || 0;
-          const oos = stock === 0;
-          const sel = state.selectedGift === g.id ? ' selected' : '';
-          return '<div class="gift-card'+sel+(oos?' out-of-stock':'')+'" '+(oos?'':'data-action="selectGift"')+' data-gid="'+g.id+'"><div class="gift-img">'+(g.image?'<img src="'+g.image+'" alt="'+g.name+'">'    :'<div class="no-img">🎁</div>')+'<div class="gift-badges"><span class="badge-pts">'+g.points+'點</span><span class="badge-val">'+g.value+'元</span>'+(oos?'<span class="badge-sold">已售完</span>':'')+'</div></div><div class="gift-info"><div class="gift-name">'+g.name+'</div><div class="gift-stock">庫存：'+stock+' 件</div></div></div>';
-        }).join('')}
-      </div>${pagination}`;
-    })()}
+    <div class="gift-grid">
+      ${paged.map(g => {
+        const stock = (g.stock && g.stock[state.selectedStore]) || 0;
+        const oos = stock === 0;
+        const sel = state.selectedGift === g.id ? ' selected' : '';
+        const url = imgUrl(g.image);
+        return '<div class="gift-card'+sel+(oos?' out-of-stock':'')+'" '+(oos?'':'data-action="selectGift"')+' data-gid="'+g.id+'"><div class="gift-img">'+(url?'<img src="'+url+'" alt="'+g.name+'" onerror="this.parentElement.innerHTML=\'<div class=no-img>🎁</div>\'">'  :'<div class="no-img">🎁</div>')+'<div class="gift-badges"><span class="badge-pts">'+g.points+'點</span><span class="badge-val">'+g.value+'元</span>'+(oos?'<span class="badge-sold">已售完</span>':'')+'</div></div><div class="gift-info"><div class="gift-name">'+g.name+'</div><div class="gift-stock">庫存：'+stock+' 件</div></div></div>';
+      }).join('')}
+    </div>
+    ${pagination}
     ${state.selectedGift ? (() => {
       const selGift = state.gifts.find(g => g.id === state.selectedGift);
       const maxQty = (selGift?.stock && selGift.stock[state.selectedStore]) || 1;
-      return `<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1.25rem;padding:12px;background:var(--color-background-secondary,#f5f5f3);border-radius:12px">
+      return `<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1.25rem;padding:12px;background:#f5f5f3;border-radius:12px">
         <span style="font-size:14px;color:#666">數量</span>
         <button data-action="qtyMinus" style="width:36px;height:36px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1" ${state.selectedQty<=1?'disabled':''}>−</button>
         <span style="font-size:20px;font-weight:700;min-width:32px;text-align:center">${state.selectedQty}</span>
@@ -199,7 +206,7 @@ function renderSign() {
       <div class="main-title">V姐姐獨家送很大<br>贈品兌換平台</div>
     </div>
     <div class="step-row"><span class="step-done">✅ 已選 - ${state.selectedStore}店</span></div>
-    <div class="step-row"><span class="step-done">✅ 已選 - ${gift?.name || ''} - 1件</span></div>
+    <div class="step-row"><span class="step-done">✅ 已選 - ${gift?.name || ''} - ${state.selectedQty}件</span></div>
     <div class="step-row"><span class="step-current">⭕ 最後一步了：填一下資料和簽個名</span></div>
     <div style="margin-top:1rem">
       <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="inp-name" type="text" placeholder="請輸入姓名"></div>
@@ -290,12 +297,10 @@ async function handleAction(e) {
     const btn = document.getElementById('submit-btn');
     btn.disabled = true; btn.textContent = '處理中...';
     try {
-      // 扣庫存
       const giftRef = doc(db, 'gifts', state.selectedGift);
       const newStock = {...gift.stock};
       newStock[state.selectedStore] = Math.max(0, (newStock[state.selectedStore]||0) - state.selectedQty);
       await updateDoc(giftRef, {stock: newStock});
-      // 新增訂單
       await addDoc(collection(db, 'orders'), {
         store: state.selectedStore,
         giftId: state.selectedGift,

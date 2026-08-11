@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>出勤異動登記｜倚盟休假管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;min-width:0}
+:root{
+  --bg:#EDF1EC;--card:#FFFFFF;--soft:#F5F8F4;--line:#DBE3DA;--line2:#EBF0EA;
+  --ink:#17251C;--muted:#6B7B6E;--green:#1E6B2E;--green-soft:#E4EFE3;
+  --ding:#B5D4F4;--ding-t:#0C447C; --yang:#C0DD97;--yang-t:#27500A;
+  --hou:#FAC775;--hou-t:#633806;  --ren:#CECBF6;--ren-t:#3C3489;
+  --kai:#F4C0D1;--kai-t:#72243E;  --sup:#F2C9A8;--sup-t:#6B3410;
+  --hq:#DDE3EC;--hq-t:#2A3350;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;padding:0 0 60px;overflow-x:hidden}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+.num{font-family:'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums}
+
+.top{border-bottom:1px solid var(--line);background:rgba(237,241,236,.95);backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:30}
+.top .wrap{display:flex;align-items:center;gap:12px;height:56px}
+.back{color:var(--muted);text-decoration:none;font-size:13px;flex:none}
+.back:hover{color:var(--ink)}
+.ttl{font-size:15px;font-weight:700;color:var(--green);flex:1}
+.who{font-size:12px;color:var(--muted);flex:none}
+
+.btn{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);background:var(--card);
+  border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;transition:.15s}
+.btn:hover{background:var(--soft)}
+.btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.btn.key{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
+.btn.key:hover{background:#175923}
+.btn.ghost{background:transparent}
+
+/* 分頁 */
+.tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-top:22px}
+.tab{font-family:inherit;background:none;border:0;color:var(--muted);font-size:14px;font-weight:500;
+  padding:0 0 12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);font-weight:700;border-bottom-color:var(--green)}
+.pane{display:none;padding-top:22px}
+.pane.on{display:block}
+
+/* 登記 */
+.date-head{display:flex;align-items:baseline;gap:12px;margin-bottom:20px}
+.date-head .d{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--green)}
+.date-head input{width:auto;font-size:13px;padding:6px 9px}
+
+.section-label{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.08em;margin-bottom:9px}
+.storetabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.stab{font-size:12px;font-weight:600;padding:5px 13px;border-radius:99px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--muted);font-family:inherit;transition:.15s}
+.stab:hover{color:var(--ink)}
+.stab.on{color:var(--ink);border-color:transparent}
+
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.person{font-family:inherit;font-size:14px;font-weight:500;color:var(--ink);background:var(--card);
+  border:1px solid var(--line);border-radius:10px;padding:13px 10px;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:8px}
+.person:hover{background:var(--soft);border-color:#3C4C7E}
+.person .dot{width:6px;height:6px;border-radius:99px;flex:none}
+
+.todaybox{margin-top:30px}
+.rec{display:flex;flex-wrap:wrap;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px}
+.rec .tg{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;flex:none}
+.rec .nm{font-size:14px;font-weight:700;flex:none;width:74px}
+.rec .ty{font-size:13px;flex:none;width:70px}
+.rec .tm{font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--green);font-weight:600;flex:none;width:52px}
+.rec .nt{font-size:12px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rec .dt{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);flex:none;width:52px}
+.rec .del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;flex:none}
+.rec .del:hover{color:#C2566E}
+.empty{padding:30px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.9;
+  border:1px dashed var(--line);border-radius:12px;background:var(--card)}
+
+/* 統計 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:9px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px}
+.stat .n{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;line-height:1;color:var(--green)}
+.stat .l{font-size:11px;color:var(--muted);margin-top:5px}
+
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
+
+/* 人員統計 */
+.subhead{display:flex;align-items:baseline;gap:10px;margin:26px 0 10px;flex-wrap:wrap}
+.subhead>span:first-child{font-size:12.5px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.sumnote{font-size:11.5px;color:#9AA89C;line-height:1.6}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.sr{display:grid;grid-template-columns:48px minmax(0,1fr) repeat(3,42px) 48px;align-items:center;
+  gap:4px;padding:9px 12px;border-bottom:1px solid var(--line2);font-size:13px}
+.sr:last-child{border-bottom:0}
+.sr.head{font-size:10.5px;color:var(--muted);font-weight:500;background:var(--soft);letter-spacing:-.02em}
+.sr:not(.head){cursor:pointer}
+.sr:hover:not(.head){background:var(--soft)}
+.sr.pick{background:var(--green-soft);box-shadow:inset 3px 0 0 var(--green)}
+.sr .st{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;justify-self:start;white-space:nowrap}
+.sr .nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr .v{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;text-align:right}
+.sr .v.zero{color:#C3CDC4;font-weight:400}
+.sr .v.tot{color:var(--green);font-weight:700;font-size:17px}
+.sr .v.warn{color:#C2566E}
+label{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin:14px 0 6px;letter-spacing:.04em}
+input,select,textarea{width:100%;font-family:inherit;font-size:14px;color:var(--ink);
+  background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:10px 11px}
+.filters select,.filters input{font-size:12.5px;padding:8px 9px}
+input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;border-color:transparent}
+
+.mask{position:fixed;inset:0;background:rgba(23,37,28,.45);display:none;align-items:center;
+  justify-content:center;padding:18px;z-index:60}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:15px;width:100%;
+  max-width:400px;padding:20px;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(23,37,28,.25)}
+.modal h3{font-size:16px;font-weight:700;color:var(--green)}
+.modal .sub{font-size:12px;color:var(--muted);margin-top:5px}
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kinds.three{grid-template-columns:repeat(3,1fr)}
+.reasons{display:flex;flex-wrap:wrap;gap:7px}
+.rsn{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);background:var(--soft);
+  border:1px solid var(--line);border-radius:99px;padding:7px 12px;cursor:pointer}
+.rsn.on{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
+.kind{font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);background:var(--soft);
+  border:1px solid var(--line);border-radius:9px;padding:11px;cursor:pointer}
+.kind.on{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:9px;margin-top:22px}
+.acts .btn{flex:1;padding:11px}
+.hint{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+.notice{margin-top:28px;font-size:11.5px;color:var(--muted);line-height:1.9;
+  border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:560px){
+  .wrap{padding:0 10px}
+  .filters{grid-template-columns:1fr 1fr}
+  .rec .nt{flex-basis:100%;order:9;padding-left:2px}
+  .rec .nm{width:auto}.rec .ty{width:auto}
+  .people{grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sr{grid-template-columns:42px minmax(0,1fr) repeat(3,34px) 40px;padding:8px 9px;gap:3px;font-size:12.5px}
+  .sr .v{font-size:14.5px}.sr .v.tot{font-size:15.5px}
+  .sr.head{font-size:9.5px}
+  .sumbar{flex-direction:column;align-items:flex-start;gap:7px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- 員編門檻 -->
+<div class="mask on" id="gate">
+  <div class="modal" style="max-width:340px">
+    <h3>出勤異動登記</h3>
+    <div class="sub">這個頁面含個別人員的缺勤紀錄，需要員編才能進入。</div>
+    <label>員編</label>
+    <input type="text" id="gCode" inputmode="numeric" autocomplete="off">
+    <div class="hint" id="gMsg"></div>
+    <div class="acts">
+      <a class="btn ghost" href="index.html" style="text-align:center;text-decoration:none;line-height:1.9">返回</a>
+      <button class="btn key" id="gOk">進入</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="top"><div class="wrap">
+    <a class="back" href="index.html">←</a>
+    <div class="ttl">出勤異動登記</div>
+    <div class="who" id="me"></div>
+  </div></div>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" data-p="log">總部登記</button>
+      <button class="tab" data-p="his">明細紀錄</button>
+    </div>
+
+    <!-- 登記 -->
+    <div class="pane on" id="p-log">
+      <div class="date-head">
+        <div class="d num" id="dTxt"></div>
+        <input type="date" id="dPick">
+      </div>
+
+      <div class="section-label">選門市</div>
+      <div class="storetabs" id="storetabs"></div>
+      <div class="section-label">點人名開始登記</div>
+      <div class="people" id="people"></div>
+
+      <div class="todaybox">
+        <div class="section-label" id="todayLbl">這一天的紀錄</div>
+        <div id="todayList"></div>
+      </div>
+    </div>
+
+    <!-- 明細紀錄 -->
+    <div class="pane" id="p-his">
+      <div class="filters">
+        <select id="hStore"></select>
+        <select id="hKind"></select>
+        <input type="month" id="hMonth">
+      </div>
+      <div class="stats" id="stats"></div>
+
+      <div class="subhead">
+        <span id="sumTitle">人員統計</span>
+        <span class="sumnote">點姓名可只看那個人的紀錄</span>
+      </div>
+      <div class="tbl" id="sumTbl"></div>
+
+      <div class="subhead">
+        <span id="listTitle">明細</span>
+        <span class="sumnote" id="who"></span>
+      </div>
+      <div id="hisList"></div>
+
+      <div style="margin-top:16px;display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn" id="csv">匯出 CSV 給會計</button>
+        <button class="btn ghost" id="clearF">清除篩選</button>
+      </div>
+    </div>
+
+    <div class="notice">
+      本頁紀錄僅供倚盟管理部核對使用。<br>
+      實際扣假或扣薪方式以倚盟管理部為準。
+    </div>
+  </div>
+</div>
+
+<!-- 登記表單 -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="mName"></h3>
+    <div class="sub" id="mSub"></div>
+    <label>狀況</label>
+    <div class="kinds three" id="kinds"></div>
+    <label>原因</label>
+    <div class="reasons" id="reasons"></div>
+    <div class="two">
+      <div id="timeBox"><label>幾點到</label><input type="time" id="fTime"></div>
+      <div><label>日期</label><input type="date" id="fDate"></div>
+    </div>
+    <label>補充說明（選填）</label>
+    <input type="text" id="fNote" placeholder="想補充細節再填">
+    <div class="acts">
+      <button class="btn ghost" id="mCancel">取消</button>
+      <button class="btn key" id="mSave">登記</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   資料層 ── 之後改接 Firebase 只要換掉這一個區塊
+   目前：存在這台裝置的瀏覽器裡（換裝置看不到）
+   ══════════════════════════════════════════════════ */
+const KEY='emo_att_v4';
+const DB={
+  all(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}},
+  save(a){localStorage.setItem(KEY,JSON.stringify(a))},
+  add(r){const a=this.all();r.id=Date.now()+''+Math.floor(Math.random()*99);r.by=ME;a.push(r);this.save(a);return a},
+  remove(id){const a=this.all().filter(x=>x.id!==id);this.save(a);return a}
+};
+
+const STORES={
+  '鼎山':{c:'--ding',t:'--ding-t',staff:['劉家妘','陳亭安','高琦茗','凃彥州']},
+  '陽明':{c:'--yang',t:'--yang-t',staff:['劉芳廷','邱雨蔚','林庭逸']},
+  '後昌':{c:'--hou', t:'--hou-t', staff:['郭家維','黃閔聖','秦曼芯']},
+  '仁雄':{c:'--ren', t:'--ren-t', staff:['黃傑稜','郭紳鴻','石佳穎','蔡冠廷']},
+  '凱旋':{c:'--kai', t:'--kai-t', staff:['陳宛姍','黃子珊','方若帆','林瑞献','劉宗翰']},
+  '區督導':{c:'--sup',t:'--sup-t',staff:['黃庭鈞']},
+  '總部':{c:'--hq', t:'--hq-t', staff:['姚東妍','廖宛如','曾芳新']}
+};
+const KINDS=['整天','半天','晚到'];
+const REASONS=['身體不適在家休養','看醫生','照顧小孩','家裡有事','其他'];
+const ADMINS={'00200':'許曉雯','13506':'姚東妍','24106':'廖宛如'};
+const W=['日','一','二','三','四','五','六'];
+
+let ME='', store='鼎山', target=null, kind='整天', reason='', picked='';
+const $=id=>document.getElementById(id);
+const cvar=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const storeOf=n=>Object.keys(STORES).find(s=>STORES[s].staff.includes(n))||'總部';
+
+/* ── 員編 ── */
+$('gOk').onclick=()=>{
+  const c=$('gCode').value.trim();
+  if(!ADMINS[c]){$('gMsg').textContent='員編不正確，請再確認一次。';return}
+  ME=ADMINS[c];$('me').textContent=ME;
+  $('gate').classList.remove('on');$('app').style.display='block';
+  boot();
+};
+$('gCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('gOk').click()});
+window.addEventListener('load',()=>$('gCode').focus());
+
+/* ── 分頁 ── */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');$('p-'+t.dataset.p).classList.add('on');
+    if(t.dataset.p==='his') drawHis();
+  };
+});
+
+function boot(){
+  $('dPick').value=ymd(new Date());
+  $('dPick').onchange=()=>{drawDate();drawToday()};
+  drawStoreTabs();drawPeople();drawDate();drawToday();
+  $('hStore').innerHTML='<option value="">全部門市</option>'+Object.keys(STORES).map(s=>`<option>${s}</option>`).join('');
+  $('hKind').innerHTML='<option value="">全部類型</option>'+KINDS.map(k=>`<option>${k}</option>`).join('');
+  ['hStore','hKind','hMonth'].forEach(id=>$(id).onchange=()=>{picked='';drawHis()});
+  $('clearF').onclick=()=>{$('hStore').value='';$('hKind').value='';$('hMonth').value='';
+    picked='';drawHis()};
+  $('csv').onclick=exportCSV;
+}
+
+/* ── 人員統計：一次看完每個人各類異動的次數 ── */
+function drawSumTable(data){
+  const cols=['整天','半天','晚到'];
+  const agg={};
+  Object.keys(STORES).forEach(st=>STORES[st].staff.forEach(n=>{
+    agg[st+'/'+n]={store:st,name:n,c:{},total:0};
+    cols.forEach(k=>agg[st+'/'+n].c[k]=0);
+  }));
+  data.forEach(r=>{
+    const k=r.store+'/'+r.name;
+    if(!agg[k]) return;
+    if(agg[k].c[r.kind]===undefined) agg[k].c[r.kind]=0;
+    agg[k].c[r.kind]++;agg[k].total++;
+  });
+  const rows=Object.values(agg).filter(r=>r.total>0)
+    .sort((a,b)=>b.total-a.total||b.c['整天']-a.c['整天']);
+  $('sumTitle').textContent=`人員統計　${rows.length} 人`;
+  if(!rows.length){
+    $('sumTbl').innerHTML=`<div class="empty" style="border:0">這個範圍沒有任何異動紀錄。</div>`;
+    return;
+  }
+  $('sumTbl').innerHTML=
+    `<div class="sr head"><span>門市</span><span>姓名</span>`+
+    cols.map(c=>`<span style="text-align:right">${c}</span>`).join('')+
+    `<span style="text-align:right">合計</span></div>`+
+    rows.map(r=>{
+      const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
+      return `<div class="sr${picked===r.name?' pick':''}" data-nm="${r.name}">
+        <span class="st" style="background:${bg};color:${tx}">${r.store}</span>
+        <span class="nm">${r.name}</span>`+
+        cols.map(c=>`<span class="v${r.c[c]?'':' zero'}">${r.c[c]||'–'}</span>`).join('')+
+        `<span class="v tot">${r.total}</span></div>`;
+    }).join('');
+  document.querySelectorAll('.sr[data-nm]').forEach(el=>{
+    el.onclick=()=>{picked = picked===el.dataset.nm ? '' : el.dataset.nm; drawHis()};
+  });
+}
+
+function drawDate(){
+  const d=new Date($('dPick').value+'T00:00:00');
+  $('dTxt').textContent=`${d.getMonth()+1}/${d.getDate()}　星期${W[d.getDay()]}`;
+}
+function drawStoreTabs(){
+  $('storetabs').innerHTML='';
+  Object.keys(STORES).forEach(s=>{
+    const b=document.createElement('button');
+    b.className='stab'+(store===s?' on':'');b.textContent=s;
+    if(store===s) b.style.background=cvar(STORES[s].c);
+    b.onclick=()=>{store=s;drawStoreTabs();drawPeople()};
+    $('storetabs').appendChild(b);
+  });
+}
+function drawPeople(){
+  const bg=cvar(STORES[store].c);
+  $('people').innerHTML=STORES[store].staff.map(n=>
+    `<button class="person" data-n="${n}"><span class="dot" style="background:${bg}"></span>${n}</button>`).join('');
+  document.querySelectorAll('.person').forEach(b=>b.onclick=()=>openForm(b.dataset.n));
+}
+
+/* ── 登記表單 ── */
+function openForm(name){
+  target=name;kind='整天';
+  $('mName').textContent=name;
+  $('mSub').textContent=store+'　'+$('dTxt').textContent;
+  $('kinds').innerHTML=KINDS.map(k=>`<button class="kind${k===kind?' on':''}" data-k="${k}">${k}</button>`).join('');
+  document.querySelectorAll('.kind').forEach(b=>b.onclick=()=>{
+    kind=b.dataset.k;
+    document.querySelectorAll('.kind').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    toggleTime();
+  });
+  reason='';
+  $('reasons').innerHTML=REASONS.map(r=>`<button class="rsn" data-r="${r}">${r}</button>`).join('');
+  document.querySelectorAll('.rsn').forEach(b=>b.onclick=()=>{
+    reason = reason===b.dataset.r ? '' : b.dataset.r;
+    document.querySelectorAll('.rsn').forEach(x=>x.classList.toggle('on',x.dataset.r===reason));
+  });
+  toggleTime();
+  const now=new Date();
+  $('fTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  $('fDate').value=$('dPick').value;$('fNote').value='';
+  $('mask').classList.add('on');
+}
+function toggleTime(){ $('timeBox').style.display = kind==='晚到' ? 'block' : 'none'; }
+$('mCancel').onclick=()=>$('mask').classList.remove('on');
+$('mask').onclick=e=>{if(e.target===$('mask'))$('mask').classList.remove('on')};
+$('mSave').onclick=()=>{
+  if(!reason){alert('請選一個原因');return}
+  DB.add({date:$('fDate').value,store:storeOf(target),name:target,kind:kind,
+          reason:reason, time:kind==='晚到'?$('fTime').value:'',
+          note:$('fNote').value.trim()});
+  $('mask').classList.remove('on');
+  $('dPick').value=$('fDate').value;drawDate();drawToday();
+};
+
+/* ── 當日紀錄 ── */
+function row(r,showDate){
+  const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
+  return `<div class="rec" style="border-left-color:${bg}">
+    ${showDate?`<span class="dt">${r.date.slice(5).replace('-','/')}</span>`:''}
+    <span class="tg" style="background:${bg};color:${tx}">${r.store}</span>
+    <span class="nm">${r.name}</span>
+    <span class="ty">${r.kind}</span>
+    <span class="tm">${r.time||'—'}</span>
+    <span class="nt">${[r.reason,r.note].filter(Boolean).join('　')}</span>
+    <button class="del" data-id="${r.id}">✕</button>
+  </div>`;
+}
+function bindDel(fn){
+  document.querySelectorAll('.del').forEach(b=>b.onclick=()=>{
+    if(confirm('確定刪除這筆紀錄？')){DB.remove(b.dataset.id);fn()}
+  });
+}
+function drawToday(){
+  const d=$('dPick').value;
+  const recs=DB.all().filter(r=>r.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  $('todayLbl').textContent=`這一天的紀錄　${recs.length} 筆`;
+  $('todayList').innerHTML=recs.length?recs.map(r=>row(r,false)).join('')
+    :`<div class="empty">這一天還沒有任何異動紀錄。<br>沒有紀錄就是正常出勤。</div>`;
+  bindDel(drawToday);
+}
+
+/* ── 明細紀錄 ── */
+function filtered(){
+  let a=DB.all();
+  if($('hStore').value) a=a.filter(r=>r.store===$('hStore').value);
+  if($('hKind').value)  a=a.filter(r=>r.kind===$('hKind').value);
+  if($('hMonth').value) a=a.filter(r=>r.date.startsWith($('hMonth').value));
+  return a.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+}
+function drawHis(){
+  const base=filtered();          /* 篩選條件內的全部 → 統計表用 */
+  drawSumTable(base);
+  const a=picked?base.filter(r=>r.name===picked):base;   /* 再套點選的人 → 明細用 */
+  $('who').textContent=picked?`目前只顯示 ${picked}，再點一次取消`:'';
+  $('listTitle').textContent=`明細　${a.length} 筆`;
+  const c=k=>base.filter(r=>r.kind===k).length;
+  $('stats').innerHTML=`
+    <div class="stat"><div class="n">${a.length}</div><div class="l">總筆數</div></div>
+    <div class="stat"><div class="n">${c('整天')}</div><div class="l">整天</div></div>
+    <div class="stat"><div class="n">${c('半天')}</div><div class="l">半天</div></div>
+    <div class="stat"><div class="n">${c('晚到')}</div><div class="l">晚到</div></div>`;
+  $('hisList').innerHTML=a.length?a.map(r=>row(r,true)).join('')
+    :`<div class="empty">沒有符合條件的紀錄。<br>換個篩選條件試試。</div>`;
+  bindDel(drawHis);
+}
+function exportCSV(){
+  const b=filtered();
+  const a=picked?b.filter(r=>r.name===picked):b;
+  if(!a.length){alert('目前沒有可匯出的紀錄');return}
+  const head=['日期','門市','姓名','狀況','原因','幾點到','補充說明','登記人'];
+  const body=a.map(r=>[r.date,r.store,r.name,r.kind,r.reason||'',r.time||'',r.note||'',r.by||'']);
+  const csv='\uFEFF'+[head,...body].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const a2=document.createElement('a');
+  a2.href=url;a2.download=`倚盟出勤異動_${ymd(new Date())}.csv`;a2.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>

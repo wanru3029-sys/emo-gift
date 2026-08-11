@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>連休申請總覽｜倚盟休假管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;min-width:0}
+:root{
+  --bg:#EDF1EC;--card:#FFFFFF;--soft:#F5F8F4;--line:#DBE3DA;--line2:#EBF0EA;
+  --ink:#17251C;--muted:#6B7B6E;--green:#1E6B2E;--green-soft:#E4EFE3;
+  --ding:#B5D4F4;--ding-t:#0C447C; --yang:#C0DD97;--yang-t:#27500A;
+  --hou:#FAC775;--hou-t:#633806;  --ren:#CECBF6;--ren-t:#3C3489;
+  --kai:#F4C0D1;--kai-t:#72243E;  --sup:#F2C9A8;--sup-t:#6B3410;
+  --hq:#DDE3EC;--hq-t:#2A3350;
+}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;padding:0 0 60px;overflow-x:hidden}
+.wrap{max-width:1060px;margin:0 auto;padding:0 14px}
+.num{font-family:'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums}
+
+/* 頁首 */
+.top{border-bottom:1px solid var(--line);background:rgba(237,241,236,.95);
+  backdrop-filter:blur(8px);position:sticky;top:0;z-index:40}
+.top .wrap{display:flex;align-items:center;gap:9px;height:52px}
+.back{color:var(--muted);text-decoration:none;font-size:15px;flex:none;padding:4px}
+.back:hover{color:var(--ink)}
+.ttl{font-size:15px;font-weight:700;color:var(--green);flex:1;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.yr{display:flex;align-items:center;gap:3px;flex:none}
+.yr button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);cursor:pointer;font-size:13px;line-height:1}
+.yr button:active{background:var(--green-soft)}
+.yr .y{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;
+  min-width:42px;text-align:center}
+.btn{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);background:var(--card);
+  border:1px solid var(--line);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.15s;flex:none}
+.btn:hover{background:var(--soft)}
+.btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.btn.key{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
+.btn.key:hover{background:#175923}
+.btn.ghost{background:transparent}
+
+/* 月份跳轉 */
+.jump{position:sticky;top:52px;z-index:35;background:rgba(237,241,236,.95);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.jump .wrap{display:flex;gap:2px;overflow-x:auto;padding:7px 14px;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.jump .wrap::-webkit-scrollbar{display:none}
+.jm{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:.03em;
+  color:#9AA89C;background:none;border:0;padding:4px 9px;border-radius:7px;cursor:pointer;
+  white-space:nowrap;position:relative;flex:none}
+.jm.has{color:var(--ink)}
+.jm.has::after{content:'';position:absolute;left:50%;bottom:1px;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:99px;background:var(--green)}
+.jm.now{background:var(--green);color:#fff}
+.jm.now::after{background:#fff}
+
+/* 月曆 */
+.months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+@media (max-width:900px){.months{grid-template-columns:minmax(0,1fr)}}
+.month{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden;
+  scroll-margin-top:96px;box-shadow:0 1px 2px rgba(23,37,28,.04)}
+.mhead{display:flex;align-items:baseline;gap:8px;padding:11px 14px 9px;border-bottom:1px solid var(--line)}
+.mhead .n{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:700;
+  line-height:1;color:var(--green)}
+.mhead .n em{font-style:normal;font-size:12.5px;margin-left:2px}
+.mhead .cnt{margin-left:auto;font-size:11.5px;color:var(--muted)}
+.mhead .cnt b{color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:15px}
+.month.blank .mhead .n{color:#A8B5A9}
+
+.dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--soft);
+  border-bottom:1px solid var(--line)}
+.dow span{text-align:center;font-size:10.5px;color:var(--muted);padding:5px 0;font-weight:500}
+.dow span:first-child,.dow span:last-child{color:var(--green);font-weight:700}
+
+.cells{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cell{min-height:56px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);
+  padding:3px 3px 4px;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.cell:nth-child(7n){border-right:0}
+.cell.pad{background:#F7F9F6}
+.cell.sun,.cell.sat{background:#F1F5F0}
+.cell .dn{font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:600;
+  color:#9AA89C;line-height:1;padding-left:2px}
+.cell.sun .dn,.cell.sat .dn{color:#7D9180}
+.cell.now{background:var(--green-soft)}
+.cell.now .dn{color:var(--green);font-weight:700}
+
+.pill{font-size:10.5px;font-weight:700;line-height:1.55;padding:1px 4px;border-radius:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.02em}
+.pill b{font-weight:700;opacity:.72;margin-right:3px}
+
+/* 年度統計 */
+h2{font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin:34px 0 11px}
+.tbl{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.tr{display:grid;grid-template-columns:56px minmax(0,1fr) 46px 54px 50px;align-items:center;
+  gap:6px;padding:9px 13px;border-bottom:1px solid var(--line2);font-size:13px}
+.tr:last-child{border-bottom:0}
+.tr.head{font-size:10.5px;color:var(--muted);letter-spacing:.05em;font-weight:500;background:var(--soft)}
+.tr .st{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;justify-self:start;
+  white-space:nowrap}
+.tr .nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr .v{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-align:right}
+.tr .v.zero{color:#A8B5A9;font-weight:500}
+.tr .v.hi{color:var(--green);font-weight:700}
+.tr:hover:not(.head){background:var(--soft)}
+
+/* 明細 */
+.list{display:flex;flex-direction:column;gap:7px}
+.item{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+  border-left:4px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;flex-wrap:wrap}
+.item .st{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;flex:none}
+.item .nm{font-weight:700;flex:none}
+.item .rg{font-family:'Barlow Condensed',sans-serif;font-size:14.5px;flex:1;min-width:120px}
+.item .rg small{font-family:'Noto Sans TC';font-size:11.5px;color:var(--muted);margin-left:7px}
+.item .kd{font-size:11.5px;color:var(--muted);flex:none}
+.item .del{border:0;background:transparent;color:#A8B5A9;cursor:pointer;font-size:14px;flex:none}
+.item .del:hover{color:#C2566E}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.9;
+  border:1px dashed var(--line);border-radius:12px;background:var(--card)}
+
+/* 對話框 */
+.mask{position:fixed;inset:0;background:rgba(23,37,28,.45);display:none;align-items:center;
+  justify-content:center;padding:16px;z-index:70}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:15px;width:100%;max-width:400px;padding:20px;
+  max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(23,37,28,.25)}
+.modal h3{font-size:16px;font-weight:700;color:var(--green)}
+label{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin:13px 0 5px}
+input,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--soft);
+  border:1px solid var(--line);border-radius:9px;padding:10px 11px}
+input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;border-color:transparent}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.acts{display:flex;gap:8px;margin-top:20px}
+.acts .btn{flex:1;padding:11px}
+.hint{font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.7}
+.notice{margin-top:28px;font-size:11.5px;color:var(--muted);line-height:1.9;
+  border-top:1px solid var(--line);padding-top:13px}
+
+/* ── 手機 ── */
+@media (max-width:560px){
+  .wrap{padding:0 10px}
+  .top .wrap{height:48px}
+  .jump{top:48px}
+  .month{scroll-margin-top:88px}
+  .mhead{padding:10px 11px 8px}
+  .cell{min-height:46px;padding:2px 2px 3px;gap:1px}
+  .cell .dn{font-size:11px}
+  .pill{font-size:9.5px;padding:1px 3px;line-height:1.4;border-radius:3px;
+    white-space:normal;word-break:keep-all;text-overflow:clip}
+  .pill b{display:block;margin-right:0;font-size:8.5px;opacity:.65}
+  .tr{grid-template-columns:48px minmax(0,1fr) 38px 46px 40px;padding:8px 10px;gap:4px;font-size:12.5px}
+  .tr .v{font-size:15.5px}
+  .item{gap:7px;padding:9px 10px}
+  .item .rg{font-size:13.5px;min-width:100px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+  <a class="back" href="index.html">←</a>
+  <div class="ttl">連休申請總覽</div>
+  <div class="yr">
+    <button id="yPrev" aria-label="前一年">‹</button>
+    <span class="y num" id="yTxt"></span>
+    <button id="yNext" aria-label="後一年">›</button>
+  </div>
+  <button class="btn ghost" id="modeBtn">登記</button>
+</div></div>
+
+<div class="jump"><div class="wrap" id="jump"></div></div>
+
+<div class="wrap">
+  <div class="months" id="months"></div>
+
+  <h2 id="statTitle">年度申請次數</h2>
+  <div class="tbl" id="stats"></div>
+
+  <h2 id="listTitle">申請明細</h2>
+  <div class="list" id="list"></div>
+
+  <div class="notice">
+    資料由總部統一登記，其他人為唯讀。<br>
+    連休天數為預排區間，實際假別以倚盟管理部為準。
+  </div>
+</div>
+
+<div class="mask" id="mask">
+  <div class="modal">
+    <h3 id="mTitle">新增連休申請</h3>
+    <label>門市</label><select id="fStore"></select>
+    <label>人員</label><select id="fName"></select>
+    <div class="two">
+      <div><label>開始日</label><input type="date" id="fFrom"></div>
+      <div><label>結束日</label><input type="date" id="fTo"></div>
+    </div>
+    <label>類型</label>
+    <select id="fKind">
+      <option value="連休">連休</option><option value="出國">出國</option>
+      <option value="婚假">婚假</option><option value="其他">其他</option>
+    </select>
+    <label>備註（選填）</label>
+    <input type="text" id="fNote" placeholder="例：日本、已跟老闆報備">
+    <div class="acts">
+      <button class="btn ghost" id="mDel" style="display:none">刪除</button>
+      <button class="btn ghost" id="mCancel">取消</button>
+      <button class="btn key" id="mSave">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="gate">
+  <div class="modal" style="max-width:320px">
+    <h3>輸入員編</h3>
+    <input type="text" id="gCode" inputmode="numeric" autocomplete="off" style="margin-top:13px">
+    <div class="hint" id="gMsg">登記模式僅開放總部人員使用。</div>
+    <div class="acts">
+      <button class="btn ghost" id="gCancel">取消</button>
+      <button class="btn key" id="gOk">確認</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   資料層 ── 之後改接 Firebase 只要換掉這一個區塊
+   目前：存在這台裝置的瀏覽器裡（換裝置看不到）
+   ══════════════════════════════════════════════════ */
+const KEY='emo_leave_v3';
+const DB={
+  all(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):seed()}catch(e){return seed()}},
+  save(a){localStorage.setItem(KEY,JSON.stringify(a))},
+  add(r){const a=this.all();r.id=Date.now()+''+Math.floor(Math.random()*99);a.push(r);this.save(a);return a},
+  remove(id){const a=this.all().filter(x=>x.id!==id);this.save(a);return a}
+};
+function seed(){
+  const s=[
+    {id:'r1',store:'後昌',name:'秦曼芯',from:'2026-07-31',to:'2026-08-02',kind:'連休',note:'宜蘭'},
+    {id:'r2',store:'陽明',name:'林庭逸',from:'2026-07-16',to:'2026-07-20',kind:'出國',note:'日本'},
+    {id:'r3',store:'鼎山',name:'劉家妘',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'家有小一新生輔導'},
+    {id:'r4',store:'陽明',name:'劉芳廷',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'照顧小孩'},
+    {id:'r5',store:'鼎山',name:'陳亭安',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'蘭嶼'},
+    {id:'r6',store:'凱旋',name:'陳宛姍',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'台中'},
+    {id:'r7',store:'後昌',name:'黃閔聖',from:'2026-12-21',to:'2026-12-25',kind:'出國',note:'日本'}
+  ];
+  localStorage.setItem(KEY,JSON.stringify(s));return s;
+}
+
+const STORES={
+  '鼎山':{c:'--ding',t:'--ding-t',staff:['劉家妘','陳亭安','高琦茗','凃彥州']},
+  '陽明':{c:'--yang',t:'--yang-t',staff:['劉芳廷','邱雨蔚','林庭逸']},
+  '後昌':{c:'--hou', t:'--hou-t', staff:['郭家維','黃閔聖','秦曼芯']},
+  '仁雄':{c:'--ren', t:'--ren-t', staff:['黃傑稜','郭紳鴻','石佳穎','蔡冠廷']},
+  '凱旋':{c:'--kai', t:'--kai-t', staff:['陳宛姍','黃子珊','方若帆','林瑞献','劉宗翰']},
+  '區督導':{c:'--sup',t:'--sup-t',staff:['黃庭鈞']},
+  '總部':{c:'--hq', t:'--hq-t', staff:['姚東妍','廖宛如','曾芳新']}
+};
+const ADMINS={'00200':'許曉雯','13506':'姚東妍','24106':'廖宛如'};
+const DOW=['日','一','二','三','四','五','六'];
+
+let year=new Date().getFullYear(), editMode=false, editing=null;
+const $=id=>document.getElementById(id);
+const cvar=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pad=n=>String(n).padStart(2,'0');
+const key=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`;
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const days=(a,b)=>Math.round((parse(b)-parse(a))/86400000)+1;
+/* 去姓，取後兩字：黃閔聖→閔聖、林庭逸→庭逸；複姓或兩字名原樣保留 */
+const shortName=n=>n.length>=3?n.slice(-2):n;
+
+function recs(){
+  return DB.all().sort((x,y)=>x.from.localeCompare(y.from));
+}
+const inYear=a=>a.filter(r=>r.from.slice(0,4)==year||r.to.slice(0,4)==year);
+
+function byDay(){
+  const map={};
+  inYear(recs()).forEach(r=>{
+    const s=parse(r.from),e=parse(r.to);
+    for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+      if(d.getFullYear()!==year) continue;
+      (map[key(d.getFullYear(),d.getMonth(),d.getDate())] ||= []).push(r);
+    }
+  });
+  return map;
+}
+
+function draw(){
+  $('yTxt').textContent=year;
+  const map=byDay(), list=inYear(recs());
+  const now=new Date(), thisYear=now.getFullYear()===year;
+
+  let html='',jump='';
+  for(let m=0;m<12;m++){
+    const first=new Date(year,m,1).getDay();
+    const total=new Date(year,m+1,0).getDate();
+    const mCount=list.filter(r=>parse(r.from)<=new Date(year,m,total)&&parse(r.to)>=new Date(year,m,1)).length;
+
+    let cells='';
+    for(let i=0;i<first;i++) cells+='<div class="cell pad"></div>';
+    for(let d=1;d<=total;d++){
+      const dw=new Date(year,m,d).getDay();
+      const isNow=thisYear&&now.getMonth()===m&&now.getDate()===d;
+      const pills=(map[key(year,m,d)]||[]).map(r=>{
+        const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
+        return `<span class="pill" style="background:${bg};color:${tx}"
+          title="${r.store}　${r.name}　${r.from} ～ ${r.to}（${days(r.from,r.to)}天）${r.kind}${r.note?'　'+r.note:''}"
+          ><b>${r.store}</b>${shortName(r.name)}</span>`;
+      }).join('');
+      cells+=`<div class="cell ${dw===0?'sun':dw===6?'sat':''} ${isNow?'now':''}">
+        <span class="dn">${d}</span>${pills}</div>`;
+    }
+    const rest=(7-(first+total)%7)%7;
+    for(let i=0;i<rest;i++) cells+='<div class="cell pad"></div>';
+
+    html+=`<section class="month${mCount?'':' blank'}" id="m${m}">
+      <div class="mhead"><span class="n num">${m+1}<em>月</em></span>
+      <span class="cnt">${mCount?`<b>${mCount}</b> 筆`:'無申請'}</span></div>
+      <div class="dow">${DOW.map(x=>`<span>${x}</span>`).join('')}</div>
+      <div class="cells">${cells}</div></section>`;
+
+    jump+=`<button class="jm${mCount?' has':''}${thisYear&&now.getMonth()===m?' now':''}" data-m="${m}">${m+1}月</button>`;
+  }
+  $('months').innerHTML=html;
+  $('jump').innerHTML=jump;
+  document.querySelectorAll('.jm').forEach(b=>{
+    b.onclick=()=>document.getElementById('m'+b.dataset.m).scrollIntoView({block:'start'});
+  });
+
+  /* 年度次數 */
+  const agg={};
+  list.forEach(r=>{
+    const k=r.store+'／'+r.name;
+    agg[k]=agg[k]||{store:r.store,name:r.name,times:0,days:0,abroad:0};
+    agg[k].times++;agg[k].days+=days(r.from,r.to);
+    if(r.kind==='出國') agg[k].abroad++;
+  });
+  const rows=Object.values(agg).sort((a,b)=>b.times-a.times||b.days-a.days);
+  const maxT=rows.length?rows[0].times:0;
+  $('statTitle').textContent=`${year} 年度申請次數　${rows.length} 人`;
+  $('stats').innerHTML=rows.length?
+    `<div class="tr head"><span>門市</span><span>姓名</span><span style="text-align:right">次數</span>
+     <span style="text-align:right">總天數</span><span style="text-align:right">出國</span></div>`+
+    rows.map(r=>{
+      const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
+      return `<div class="tr">
+        <span class="st" style="background:${bg};color:${tx}">${r.store}</span>
+        <span class="nm">${r.name}</span>
+        <span class="v num${r.times===maxT&&maxT>1?' hi':''}">${r.times}</span>
+        <span class="v num">${r.days}</span>
+        <span class="v num${r.abroad?'':' zero'}">${r.abroad||'–'}</span></div>`;
+    }).join('')
+    :`<div class="empty">${year} 年還沒有任何連休申請</div>`;
+
+  /* 明細 */
+  $('listTitle').textContent=`申請明細　${list.length} 筆`;
+  $('list').innerHTML=list.length?list.map(r=>{
+    const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
+    const s=parse(r.from),e=parse(r.to),f=d=>`${d.getMonth()+1}/${d.getDate()}`;
+    return `<div class="item" style="border-left-color:${bg}">
+      <span class="st" style="background:${bg};color:${tx}">${r.store}</span>
+      <span class="nm">${r.name}</span>
+      <span class="rg">${f(s)} – ${f(e)}　${days(r.from,r.to)}天
+        ${r.note?`<small>${r.note}</small>`:''}</span>
+      <span class="kd">${r.kind}</span>
+      ${editMode?`<button class="del" data-id="${r.id}">✕</button>`:''}</div>`;
+  }).join('')
+  :`<div class="empty">${year} 年還沒有任何連休申請</div>`;
+
+  document.querySelectorAll('.del').forEach(b=>{
+    b.onclick=e=>{e.stopPropagation();
+      if(confirm('確定刪除這筆申請？')){DB.remove(b.dataset.id);draw()}};
+  });
+  if(editMode){
+    document.querySelectorAll('.item').forEach((el,i)=>{
+      el.style.cursor='pointer';
+      el.onclick=e=>{if(!e.target.classList.contains('del'))openForm(list[i])};
+    });
+  }
+}
+
+/* 表單 */
+function fillNames(){
+  $('fName').innerHTML=STORES[$('fStore').value].staff.map(n=>`<option>${n}</option>`).join('');
+}
+$('fStore').innerHTML=Object.keys(STORES).map(s=>`<option>${s}</option>`).join('');
+$('fStore').onchange=fillNames; fillNames();
+
+function openForm(rec){
+  editing=rec||null;
+  $('mTitle').textContent=rec?'修改連休申請':'新增連休申請';
+  $('mDel').style.display=rec?'block':'none';
+  if(rec){
+    $('fStore').value=rec.store;fillNames();$('fName').value=rec.name;
+    $('fFrom').value=rec.from;$('fTo').value=rec.to;$('fKind').value=rec.kind;$('fNote').value=rec.note||'';
+  }else{
+    const t=new Date(),d=`${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;
+    $('fFrom').value=d;$('fTo').value=d;$('fKind').value='連休';$('fNote').value='';
+  }
+  $('mask').classList.add('on');
+}
+$('mCancel').onclick=()=>$('mask').classList.remove('on');
+$('mask').onclick=e=>{if(e.target===$('mask'))$('mask').classList.remove('on')};
+$('mDel').onclick=()=>{
+  if(editing&&confirm('確定刪除這筆申請？')){DB.remove(editing.id);editing=null;
+    $('mask').classList.remove('on');draw()}
+};
+$('mSave').onclick=()=>{
+  const r={store:$('fStore').value,name:$('fName').value,from:$('fFrom').value,
+           to:$('fTo').value,kind:$('fKind').value,note:$('fNote').value.trim()};
+  if(!r.from||!r.to){alert('請填開始日與結束日');return}
+  if(r.to<r.from){alert('結束日不能早於開始日');return}
+  if(editing) DB.remove(editing.id);
+  DB.add(r);editing=null;$('mask').classList.remove('on');
+  year=Number(r.from.slice(0,4));draw();
+};
+
+/* 員編 */
+$('modeBtn').onclick=()=>{
+  if(editMode){editMode=false;$('modeBtn').textContent='登記';
+    $('modeBtn').classList.remove('key');draw();return}
+  $('gCode').value='';$('gMsg').textContent='登記模式僅開放總部人員使用。';
+  $('gate').classList.add('on');$('gCode').focus();
+};
+$('gCancel').onclick=()=>$('gate').classList.remove('on');
+$('gOk').onclick=()=>{
+  if(!ADMINS[$('gCode').value.trim()]){$('gMsg').textContent='員編不正確，請再確認一次。';return}
+  editMode=true;$('gate').classList.remove('on');
+  $('modeBtn').textContent='＋ 新增';$('modeBtn').classList.add('key');
+  $('modeBtn').onclick=()=>openForm(null);
+  draw();
+};
+$('gCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('gOk').click()});
+
+$('yPrev').onclick=()=>{year--;draw()};
+$('yNext').onclick=()=>{year++;draw()};
+
+draw();
+</script>
+</body>
+</html>

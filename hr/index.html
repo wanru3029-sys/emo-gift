@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>倚盟休假管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;min-width:0}
+:root{
+  --bg:#EDF1EC;--card:#FFFFFF;--soft:#F5F8F4;--line:#DBE3DA;
+  --ink:#17251C;--muted:#6B7B6E;--green:#1E6B2E;--green-soft:#E4EFE3;
+  --ding:#B5D4F4;--yang:#C0DD97;--hou:#FAC775;--ren:#CECBF6;--kai:#F4C0D1;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  min-height:100vh;padding:26px 14px 44px;overflow-x:hidden}
+.wrap{max-width:600px;margin:0 auto}
+
+.stripe{display:flex;height:5px;border-radius:99px;overflow:hidden;margin-bottom:20px}
+.stripe i{flex:1}
+.stripe i:nth-child(1){background:var(--ding)}
+.stripe i:nth-child(2){background:var(--yang)}
+.stripe i:nth-child(3){background:var(--hou)}
+.stripe i:nth-child(4){background:var(--ren)}
+.stripe i:nth-child(5){background:var(--kai)}
+
+.eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:13.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:5px}
+h1{font-size:26px;font-weight:700;line-height:1.25;color:var(--green)}
+.sub{color:var(--muted);font-size:13.5px;margin-top:8px;line-height:1.7}
+.today{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.05em;
+  color:var(--muted);margin-top:12px}
+
+.cards{margin-top:26px;display:flex;flex-direction:column;gap:11px}
+a.card{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;
+  background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);
+  border-radius:13px;padding:16px 16px;transition:.16s;box-shadow:0 1px 2px rgba(23,37,28,.05)}
+a.card:hover,a.card:focus-visible{background:var(--soft);transform:translateX(3px);
+  box-shadow:0 3px 10px rgba(23,37,28,.08)}
+a.card:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+a.card.locked{border-left-color:#B9C4B9}
+.ico{font-size:22px;line-height:1;flex:none;width:28px;text-align:center}
+.txt{flex:1}
+.t{font-size:16px;font-weight:700}
+.d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.arrow{font-family:'Barlow Condensed',sans-serif;color:var(--green);font-size:20px;flex:none}
+a.card.locked .arrow{color:#B9C4B9}
+.tag{display:inline-block;font-size:10.5px;color:var(--muted);border:1px solid var(--line);
+  border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:2px;font-weight:500}
+
+footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:11.5px;line-height:1.8}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stripe"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="eyebrow">E-MO 倚盟電訊</div>
+  <h1>休假管理</h1>
+  <p class="sub">連休、出國、當天的出勤異動，都在這裡查。</p>
+  <div class="today" id="today"></div>
+
+  <nav class="cards">
+    <a class="card" href="leave.html">
+      <span class="ico">📋</span>
+      <span class="txt">
+        <span class="t">連休申請總覽</span>
+        <span class="d">誰要出國、誰排連休？整年度一次看完</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+    <a class="card locked" href="log.html">
+      <span class="ico">⏰</span>
+      <span class="txt">
+        <span class="t">出勤異動登記<span class="tag">需員編</span></span>
+        <span class="d">遲到、早退、臨時請假的即時登記與累計紀錄</span>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <footer>
+    © 2026 倚盟電訊　休假管理<br>
+    紀錄僅供內部排班與人事作業使用，實際假別以倚盟管理部為準。
+  </footer>
+</div>
+<script>
+const W=['日','一','二','三','四','五','六'],n=new Date();
+document.getElementById('today').textContent=
+  `${n.getFullYear()}/${String(n.getMonth()+1).padStart(2,'0')}/${String(n.getDate()).padStart(2,'0')}　星期${W[n.getDay()]}`;
+</script>
+</body>
+</html>

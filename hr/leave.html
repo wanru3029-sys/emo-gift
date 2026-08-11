@@ -10,8 +10,8 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;min-width:0}
 :root{
-  --bg:#EDF1EC;--card:#FFFFFF;--soft:#F5F8F4;--line:#DBE3DA;--line2:#EBF0EA;
-  --ink:#17251C;--muted:#6B7B6E;--green:#1E6B2E;--green-soft:#E4EFE3;
+  --bg:#EFEDEA;--card:#FFFFFF;--soft:#F8F7F5;--line:#DFDCD7;--line2:#EDEBE7;
+  --ink:#2A2926;--muted:#7E7B75;--tea:#5E5B54;--tea-soft:#E7E5E0;
   --ding:#B5D4F4;--ding-t:#0C447C; --yang:#C0DD97;--yang-t:#27500A;
   --hou:#FAC775;--hou-t:#633806;  --ren:#CECBF6;--ren-t:#3C3489;
   --kai:#F4C0D1;--kai-t:#72243E;  --sup:#F2C9A8;--sup-t:#6B3410;
@@ -24,89 +24,96 @@ body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:
 .num{font-family:'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums}
 
 /* 頁首 */
-.top{border-bottom:1px solid var(--line);background:rgba(237,241,236,.95);
+.top{border-bottom:1px solid var(--line);background:rgba(239,237,234,.95);
   backdrop-filter:blur(8px);position:sticky;top:0;z-index:40}
 .top .wrap{display:flex;align-items:center;gap:9px;height:52px}
 .back{color:var(--muted);text-decoration:none;font-size:15px;flex:none;padding:4px}
 .back:hover{color:var(--ink)}
-.ttl{font-size:15px;font-weight:700;color:var(--green);flex:1;white-space:nowrap;
+.ttl{font-size:15px;font-weight:700;color:var(--tea);flex:1;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
 .yr{display:flex;align-items:center;gap:3px;flex:none}
 .yr button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--card);
   color:var(--ink);cursor:pointer;font-size:13px;line-height:1}
-.yr button:active{background:var(--green-soft)}
+.yr button:active{background:var(--tea-soft)}
 .yr .y{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;
   min-width:42px;text-align:center}
 .btn{font-family:inherit;font-size:12.5px;font-weight:500;color:var(--ink);background:var(--card);
   border:1px solid var(--line);border-radius:8px;padding:7px 11px;cursor:pointer;transition:.15s;flex:none}
 .btn:hover{background:var(--soft)}
-.btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-.btn.key{background:var(--green);color:#fff;border-color:var(--green);font-weight:700}
-.btn.key:hover{background:#175923}
+.btn:focus-visible{outline:2px solid var(--tea);outline-offset:2px}
+.btn.key{background:var(--tea);color:#fff;border-color:var(--tea);font-weight:700}
+.btn.key:hover{background:#4A4843}
 .btn.ghost{background:transparent}
 
 /* 月份跳轉 */
-.jump{position:sticky;top:52px;z-index:35;background:rgba(237,241,236,.95);
+.jump{position:sticky;top:52px;z-index:35;background:rgba(239,237,234,.95);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .jump .wrap{display:flex;gap:2px;overflow-x:auto;padding:7px 14px;scrollbar-width:none;
   -webkit-overflow-scrolling:touch}
 .jump .wrap::-webkit-scrollbar{display:none}
 .jm{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;letter-spacing:.03em;
-  color:#9AA89C;background:none;border:0;padding:4px 9px;border-radius:7px;cursor:pointer;
+  color:#A5A29B;background:none;border:0;padding:4px 9px;border-radius:7px;cursor:pointer;
   white-space:nowrap;position:relative;flex:none}
 .jm.has{color:var(--ink)}
 .jm.has::after{content:'';position:absolute;left:50%;bottom:1px;transform:translateX(-50%);
-  width:4px;height:4px;border-radius:99px;background:var(--green)}
-.jm.now{background:var(--green);color:#fff}
+  width:4px;height:4px;border-radius:99px;background:var(--tea)}
+.jm.now{background:var(--tea);color:#fff}
 .jm.now::after{background:#fff}
 
 /* 月曆 */
 .months{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
 @media (max-width:900px){.months{grid-template-columns:minmax(0,1fr)}}
 .month{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden;
-  scroll-margin-top:96px;box-shadow:0 1px 2px rgba(23,37,28,.04)}
-.mhead{display:flex;align-items:baseline;gap:8px;padding:11px 14px 9px;border-bottom:1px solid var(--line)}
+  scroll-margin-top:96px;box-shadow:0 1px 2px rgba(42,41,38,.04)}
+.mhead{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;
+  padding:11px 14px 9px;border-bottom:1px solid var(--line)}
+.mhead .n{grid-column:2;justify-self:center}
+.mhead .cnt{grid-column:3;justify-self:end}
 .mhead .n{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:700;
-  line-height:1;color:var(--green)}
+  line-height:1;color:var(--tea)}
 .mhead .n em{font-style:normal;font-size:12.5px;margin-left:2px}
-.mhead .cnt{margin-left:auto;font-size:11.5px;color:var(--muted)}
-.mhead .cnt b{color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:15px}
-.month.blank .mhead .n{color:#A8B5A9}
+.mhead .cnt{font-size:11.5px;color:var(--muted)}
+.mhead .cnt b{color:var(--tea);font-family:'Barlow Condensed',sans-serif;font-size:15px}
+.month.blank .mhead .n{color:#B4B1AA}
 
 .dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:var(--soft);
   border-bottom:1px solid var(--line)}
 .dow span{text-align:center;font-size:10.5px;color:var(--muted);padding:5px 0;font-weight:500}
-.dow span:first-child,.dow span:last-child{color:var(--green);font-weight:700}
+.dow span:first-child,.dow span:last-child{color:var(--tea);font-weight:700}
 
 .cells{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .cell{min-height:56px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);
   padding:3px 3px 4px;display:flex;flex-direction:column;gap:2px;overflow:hidden}
 .cell:nth-child(7n){border-right:0}
-.cell.pad{background:#F7F9F6}
-.cell.sun,.cell.sat{background:#F1F5F0}
+.cell.pad{background:#F6F5F2}
+.cell.sun,.cell.sat{background:#F4F3F0}
 .cell .dn{font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:600;
-  color:#9AA89C;line-height:1;padding-left:2px}
-.cell.sun .dn,.cell.sat .dn{color:#7D9180}
-.cell.now{background:var(--green-soft)}
-.cell.now .dn{color:var(--green);font-weight:700}
+  color:#A5A29B;line-height:1;padding-left:2px}
+.cell.sun .dn,.cell.sat .dn{color:#98958E}
+.cell.now{background:var(--tea-soft)}
+.cell.now .dn{color:var(--tea);font-weight:700}
 
 .pill{font-size:10.5px;font-weight:700;line-height:1.55;padding:1px 4px;border-radius:4px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.02em}
 .pill b{font-weight:700;opacity:.72;margin-right:3px}
+.pill.pend{background:transparent;border:1px dashed currentColor}
 
 /* 年度統計 */
 h2{font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin:34px 0 11px}
 .tbl{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden}
-.tr{display:grid;grid-template-columns:56px minmax(0,1fr) 46px 54px 50px;align-items:center;
+.tr{display:grid;grid-template-columns:56px minmax(0,1fr) repeat(3,50px) 76px;align-items:center;
   gap:6px;padding:9px 13px;border-bottom:1px solid var(--line2);font-size:13px}
+.tr .st2 i{font-style:normal;color:#C9C6BF;margin:0 2px;font-weight:400}
+.tr .st2 b.p{color:#9A6B14}
+.tr .st2 b.z{color:#C9C6BF;font-weight:400}
 .tr:last-child{border-bottom:0}
 .tr.head{font-size:10.5px;color:var(--muted);letter-spacing:.05em;font-weight:500;background:var(--soft)}
 .tr .st{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:99px;justify-self:start;
   white-space:nowrap}
 .tr .nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tr .v{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-align:right}
-.tr .v.zero{color:#A8B5A9;font-weight:500}
-.tr .v.hi{color:var(--green);font-weight:700}
+.tr .v.zero{color:#B4B1AA;font-weight:500}
+.tr .v.hi{color:var(--tea);font-weight:700}
 .tr:hover:not(.head){background:var(--soft)}
 
 /* 明細 */
@@ -118,22 +125,24 @@ h2{font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--muted);margi
 .item .rg{font-family:'Barlow Condensed',sans-serif;font-size:14.5px;flex:1;min-width:120px}
 .item .rg small{font-family:'Noto Sans TC';font-size:11.5px;color:var(--muted);margin-left:7px}
 .item .kd{font-size:11.5px;color:var(--muted);flex:none}
-.item .del{border:0;background:transparent;color:#A8B5A9;cursor:pointer;font-size:14px;flex:none}
+.item .pend-tag{font-size:10.5px;font-weight:700;color:#9A6B14;background:#FBEFD6;
+  border-radius:99px;padding:2px 8px;flex:none}
+.item .del{border:0;background:transparent;color:#B4B1AA;cursor:pointer;font-size:14px;flex:none}
 .item .del:hover{color:#C2566E}
 .empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.9;
   border:1px dashed var(--line);border-radius:12px;background:var(--card)}
 
 /* 對話框 */
-.mask{position:fixed;inset:0;background:rgba(23,37,28,.45);display:none;align-items:center;
+.mask{position:fixed;inset:0;background:rgba(42,41,38,.45);display:none;align-items:center;
   justify-content:center;padding:16px;z-index:70}
 .mask.on{display:flex}
 .modal{background:var(--card);border-radius:15px;width:100%;max-width:400px;padding:20px;
-  max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(23,37,28,.25)}
-.modal h3{font-size:16px;font-weight:700;color:var(--green)}
+  max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(42,41,38,.25)}
+.modal h3{font-size:16px;font-weight:700;color:var(--tea)}
 label{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin:13px 0 5px}
 input,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--soft);
   border:1px solid var(--line);border-radius:9px;padding:10px 11px}
-input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;border-color:transparent}
+input:focus,select:focus{outline:2px solid var(--tea);outline-offset:-1px;border-color:transparent}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .acts{display:flex;gap:8px;margin-top:20px}
 .acts .btn{flex:1;padding:11px}
@@ -153,7 +162,7 @@ input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;bord
   .pill{font-size:9.5px;padding:1px 3px;line-height:1.4;border-radius:3px;
     white-space:normal;word-break:keep-all;text-overflow:clip}
   .pill b{display:block;margin-right:0;font-size:8.5px;opacity:.65}
-  .tr{grid-template-columns:48px minmax(0,1fr) 38px 46px 40px;padding:8px 10px;gap:4px;font-size:12.5px}
+  .tr{grid-template-columns:40px minmax(0,1fr) repeat(3,34px) 58px;padding:8px 9px;gap:3px;font-size:12.5px}
   .tr .v{font-size:15.5px}
   .item{gap:7px;padding:9px 10px}
   .item .rg{font-size:13.5px;min-width:100px}
@@ -205,8 +214,12 @@ input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;bord
       <option value="連休">連休</option><option value="出國">出國</option>
       <option value="婚假">婚假</option><option value="其他">其他</option>
     </select>
+    <label>狀態</label>
+    <select id="fStatus">
+      <option value="已核准">已核准</option><option value="申請中">申請中</option>
+    </select>
     <label>備註（選填）</label>
-    <input type="text" id="fNote" placeholder="例：日本、已跟老闆報備">
+    <input type="text" id="fNote" placeholder="例：日本、台東、照顧小孩">
     <div class="acts">
       <button class="btn ghost" id="mDel" style="display:none">刪除</button>
       <button class="btn ghost" id="mCancel">取消</button>
@@ -232,7 +245,7 @@ input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;bord
    資料層 ── 之後改接 Firebase 只要換掉這一個區塊
    目前：存在這台裝置的瀏覽器裡（換裝置看不到）
    ══════════════════════════════════════════════════ */
-const KEY='emo_leave_v4';
+const KEY='emo_leave_v5';
 const DB={
   all(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):seed()}catch(e){return seed()}},
   save(a){localStorage.setItem(KEY,JSON.stringify(a))},
@@ -241,13 +254,37 @@ const DB={
 };
 function seed(){
   const s=[
-    {id:'r1',store:'後昌',name:'秦曼芯',from:'2026-07-31',to:'2026-08-02',kind:'連休',note:'宜蘭'},
-    {id:'r2',store:'陽明',name:'林庭逸',from:'2026-07-16',to:'2026-07-20',kind:'出國',note:'日本'},
-    {id:'r3',store:'鼎山',name:'劉家妘',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'家有小一新生輔導'},
-    {id:'r4',store:'陽明',name:'劉芳廷',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'照顧小孩'},
-    {id:'r5',store:'鼎山',name:'陳亭安',from:'2026-07-26',to:'2026-07-28',kind:'連休',note:'蘭嶼'},
-    {id:'r6',store:'凱旋',name:'陳宛姍',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'台中'},
-    {id:'r7',store:'後昌',name:'黃閔聖',from:'2026-12-21',to:'2026-12-25',kind:'出國',note:'日本'}
+    {id:'r1',store:'後昌',name:'秦曼芯',from:'2026-07-31',to:'2026-08-02',kind:'連休',note:'宜蘭',status:'已核准'},
+    {id:'r2',store:'陽明',name:'林庭逸',from:'2026-07-16',to:'2026-07-20',kind:'出國',note:'日本',status:'已核准'},
+    {id:'r3',store:'鼎山',name:'劉家妘',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'家有小一新生輔導',status:'已核准'},
+    {id:'r4',store:'陽明',name:'劉芳廷',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'照顧小孩',status:'已核准'},
+    {id:'r5',store:'鼎山',name:'陳亭安',from:'2026-07-26',to:'2026-07-28',kind:'連休',note:'蘭嶼',status:'已核准'},
+    {id:'r6',store:'凱旋',name:'陳宛姍',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'台中',status:'已核准'},
+    {id:'r7',store:'後昌',name:'黃閔聖',from:'2026-12-21',to:'2026-12-25',kind:'出國',note:'日本',status:'已核准'},
+    {id:'r8',store:'鼎山',name:'劉家妘',from:'2026-05-02',to:'2026-05-04',kind:'連休',note:'照顧小孩',status:'已核准'},
+    {id:'r9',store:'鼎山',name:'劉家妘',from:'2026-02-16',to:'2026-02-18',kind:'連休',note:'過年年節拜拜',status:'已核准'},
+    {id:'r10',store:'鼎山',name:'黃子珊',from:'2026-02-17',to:'2026-02-20',kind:'連休',note:'照顧小孩',status:'已核准'},
+    {id:'r11',store:'鼎山',name:'陳亭安',from:'2026-11-16',to:'2026-11-19',kind:'出國',note:'日本',status:'已核准'},
+    {id:'r12',store:'鼎山',name:'陳亭安',from:'2026-04-18',to:'2026-04-20',kind:'連休',note:'露營',status:'已核准'},
+    {id:'r13',store:'鼎山',name:'凃彥州',from:'2026-04-03',to:'2026-04-05',kind:'連休',note:'月中陪老婆',status:'已核准'},
+    {id:'r14',store:'鼎山',name:'凃彥州',from:'2026-02-15',to:'2026-02-18',kind:'連休',note:'陪老婆工作',status:'已核准'},
+    {id:'r15',store:'區督導',name:'黃庭鈞',from:'2026-02-16',to:'2026-02-18',kind:'連休',note:'回台北',status:'已核准'},
+    {id:'r16',store:'陽明',name:'劉芳廷',from:'2026-01-23',to:'2026-01-25',kind:'連休',note:'台東',status:'已核准'},
+    {id:'r17',store:'陽明',name:'劉芳廷',from:'2026-02-17',to:'2026-02-19',kind:'連休',note:'新竹',status:'已核准'},
+    {id:'r18',store:'陽明',name:'劉芳廷',from:'2026-04-03',to:'2026-04-05',kind:'連休',note:'照顧小孩',status:'已核准'},
+    {id:'r19',store:'後昌',name:'郭家維',from:'2026-02-22',to:'2026-02-24',kind:'連休',note:'回台北過年',status:'已核准'},
+    {id:'r20',store:'後昌',name:'郭家維',from:'2026-04-16',to:'2026-04-18',kind:'連休',note:'南投',status:'已核准'},
+    {id:'r21',store:'後昌',name:'邱雨蔚',from:'2026-02-17',to:'2026-02-21',kind:'連休',note:'出遊',status:'已核准'},
+    {id:'r22',store:'後昌',name:'秦曼芯',from:'2026-02-17',to:'2026-02-19',kind:'連休',note:'過年',status:'已核准'},
+    {id:'r23',store:'陽明',name:'林瑞献',from:'2026-02-16',to:'2026-02-18',kind:'連休',note:'',status:'已核准'},
+    {id:'r24',store:'仁雄',name:'黃傑稜',from:'2026-02-16',to:'2026-02-19',kind:'連休',note:'照顧小孩',status:'已核准'},
+    {id:'r25',store:'凱旋',name:'陳宛姍',from:'2026-05-08',to:'2026-05-12',kind:'出國',note:'日本',status:'已核准'},
+    {id:'r26',store:'凱旋',name:'陳宛姍',from:'2026-03-18',to:'2026-03-20',kind:'連休',note:'台東',status:'已核准'},
+    {id:'r27',store:'凱旋',name:'陳宛姍',from:'2026-02-17',to:'2026-02-20',kind:'連休',note:'家裡生意幫忙',status:'已核准'},
+    {id:'r28',store:'鼎山',name:'高琦茗',from:'2026-03-29',to:'2026-04-03',kind:'出國',note:'日本',status:'已核准'},
+    {id:'r29',store:'鼎山',name:'高琦茗',from:'2026-02-16',to:'2026-02-19',kind:'連休',note:'屏東過年',status:'已核准'},
+    {id:'r30',store:'鼎山',name:'高琦茗',from:'2026-08-31',to:'2026-09-02',kind:'連休',note:'北部',status:'申請中'},
+    {id:'r31',store:'凱旋',name:'石佳穎',from:'2026-02-15',to:'2026-02-18',kind:'連休',note:'過年出遊',status:'已核准'}
   ];
   localStorage.setItem(KEY,JSON.stringify(s));return s;
 }
@@ -309,8 +346,9 @@ function draw(){
       const isNow=thisYear&&now.getMonth()===m&&now.getDate()===d;
       const pills=(map[key(year,m,d)]||[]).map(r=>{
         const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
-        return `<span class="pill" style="background:${bg};color:${tx}"
-          title="${r.store}　${r.name}　${r.from} ～ ${r.to}（${days(r.from,r.to)}天）${r.kind}${r.note?'　'+r.note:''}"
+        const pend=(r.status||'已核准')==='申請中';
+        return `<span class="pill${pend?' pend':''}" style="${pend?`color:${tx};border-color:${tx}`:`background:${bg};color:${tx}`}"
+          title="${r.store}　${r.name}　${r.from} ～ ${r.to}（${days(r.from,r.to)}天）${r.kind}　${r.status||'已核准'}${r.note?'　'+r.note:''}"
           ><b>${r.store}</b>${shortName(r.name)}</span>`;
       }).join('');
       cells+=`<div class="cell ${dw===0?'sun':dw===6?'sat':''} ${isNow?'now':''}">
@@ -337,16 +375,18 @@ function draw(){
   const agg={};
   list.forEach(r=>{
     const k=r.store+'／'+r.name;
-    agg[k]=agg[k]||{store:r.store,name:r.name,times:0,days:0,abroad:0};
+    agg[k]=agg[k]||{store:r.store,name:r.name,times:0,days:0,abroad:0,ok:0,pend:0};
     agg[k].times++;agg[k].days+=days(r.from,r.to);
     if(r.kind==='出國') agg[k].abroad++;
+    if((r.status||'已核准')==='申請中') agg[k].pend++; else agg[k].ok++;
   });
   const rows=Object.values(agg).sort((a,b)=>b.times-a.times||b.days-a.days);
   const maxT=rows.length?rows[0].times:0;
   $('statTitle').textContent=`${year} 年度申請次數　${rows.length} 人`;
   $('stats').innerHTML=rows.length?
     `<div class="tr head"><span>門市</span><span>姓名</span><span style="text-align:right">次數</span>
-     <span style="text-align:right">總天數</span><span style="text-align:right">出國</span></div>`+
+     <span style="text-align:right">總天數</span><span style="text-align:right">出國</span>
+     <span style="text-align:right">已核准／申請中</span></div>`+
     rows.map(r=>{
       const bg=cvar(STORES[r.store].c),tx=cvar(STORES[r.store].t);
       return `<div class="tr">
@@ -354,7 +394,8 @@ function draw(){
         <span class="nm">${r.name}</span>
         <span class="v num${r.times===maxT&&maxT>1?' hi':''}">${r.times}</span>
         <span class="v num">${r.days}</span>
-        <span class="v num${r.abroad?'':' zero'}">${r.abroad||'–'}</span></div>`;
+        <span class="v num${r.abroad?'':' zero'}">${r.abroad||'–'}</span>
+        <span class="v num st2">${r.ok}<i>/</i><b class="${r.pend?'p':'z'}">${r.pend}</b></span></div>`;
     }).join('')
     :`<div class="empty">${year} 年還沒有任何連休申請</div>`;
 
@@ -369,6 +410,7 @@ function draw(){
       <span class="rg">${f(s)} – ${f(e)}　${days(r.from,r.to)}天
         ${r.note?`<small>${r.note}</small>`:''}</span>
       <span class="kd">${r.kind}</span>
+      ${(r.status||'已核准')==='申請中'?'<span class="pend-tag">申請中</span>':''}
       ${editMode?`<button class="del" data-id="${r.id}">✕</button>`:''}</div>`;
   }).join('')
   :`<div class="empty">${year} 年還沒有任何連休申請</div>`;
@@ -398,10 +440,12 @@ function openForm(rec){
   $('mDel').style.display=rec?'block':'none';
   if(rec){
     $('fStore').value=rec.store;fillNames();$('fName').value=rec.name;
-    $('fFrom').value=rec.from;$('fTo').value=rec.to;$('fKind').value=rec.kind;$('fNote').value=rec.note||'';
+    $('fFrom').value=rec.from;$('fTo').value=rec.to;$('fKind').value=rec.kind;
+    $('fStatus').value=rec.status||'已核准';$('fNote').value=rec.note||'';
   }else{
     const t=new Date(),d=`${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;
-    $('fFrom').value=d;$('fTo').value=d;$('fKind').value='連休';$('fNote').value='';
+    $('fFrom').value=d;$('fTo').value=d;$('fKind').value='連休';
+    $('fStatus').value='已核准';$('fNote').value='';
   }
   $('mask').classList.add('on');
 }
@@ -413,7 +457,8 @@ $('mDel').onclick=()=>{
 };
 $('mSave').onclick=()=>{
   const r={store:$('fStore').value,name:$('fName').value,from:$('fFrom').value,
-           to:$('fTo').value,kind:$('fKind').value,note:$('fNote').value.trim()};
+           to:$('fTo').value,kind:$('fKind').value,status:$('fStatus').value,
+           note:$('fNote').value.trim()};
   if(!r.from||!r.to){alert('請填開始日與結束日');return}
   if(r.to<r.from){alert('結束日不能早於開始日');return}
   if(editing) DB.remove(editing.id);

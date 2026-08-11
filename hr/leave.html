@@ -232,7 +232,7 @@ input:focus,select:focus{outline:2px solid var(--green);outline-offset:-1px;bord
    資料層 ── 之後改接 Firebase 只要換掉這一個區塊
    目前：存在這台裝置的瀏覽器裡（換裝置看不到）
    ══════════════════════════════════════════════════ */
-const KEY='emo_leave_v3';
+const KEY='emo_leave_v4';
 const DB={
   all(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):seed()}catch(e){return seed()}},
   save(a){localStorage.setItem(KEY,JSON.stringify(a))},
@@ -245,7 +245,7 @@ function seed(){
     {id:'r2',store:'陽明',name:'林庭逸',from:'2026-07-16',to:'2026-07-20',kind:'出國',note:'日本'},
     {id:'r3',store:'鼎山',name:'劉家妘',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'家有小一新生輔導'},
     {id:'r4',store:'陽明',name:'劉芳廷',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'照顧小孩'},
-    {id:'r5',store:'鼎山',name:'陳亭安',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'蘭嶼'},
+    {id:'r5',store:'鼎山',name:'陳亭安',from:'2026-07-26',to:'2026-07-28',kind:'連休',note:'蘭嶼'},
     {id:'r6',store:'凱旋',name:'陳宛姍',from:'2026-08-26',to:'2026-08-28',kind:'連休',note:'台中'},
     {id:'r7',store:'後昌',name:'黃閔聖',from:'2026-12-21',to:'2026-12-25',kind:'出國',note:'日本'}
   ];

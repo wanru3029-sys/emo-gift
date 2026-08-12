@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>出勤異動登記｜倚盟休假管理</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -253,18 +256,38 @@ input:focus,select:focus{outline:2px solid var(--tea);outline-offset:-1px;border
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   資料層 ── 之後改接 Firebase 只要換掉這一個區塊
-   目前：存在這台裝置的瀏覽器裡（換裝置看不到）
+   資料層 ── Firebase Firestore（雲端，所有人共用同一份）
+   集合：attendance_logs
    ══════════════════════════════════════════════════ */
-const KEY='emo_att_v4';
+firebase.initializeApp({
+  apiKey:"AIzaSyB0z4t9S2mRdQZ9Q6kExa3SuFgjNZmskSw",
+  authDomain:"emo-gift-platform.firebaseapp.com",
+  projectId:"emo-gift-platform",
+  storageBucket:"emo-gift-platform.firebasestorage.app",
+  messagingSenderId:"251699644492",
+  appId:"1:251699644492:web:da3f8739bd1256f83f0ce9"
+});
+const COL=firebase.firestore().collection('attendance_logs');
+
+let CACHE=[], loaded=false, booted=false;
 const DB={
-  all(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}},
-  save(a){localStorage.setItem(KEY,JSON.stringify(a))},
-  add(r){const a=this.all();r.id=Date.now()+''+Math.floor(Math.random()*99);r.by=ME;a.push(r);this.save(a);return a},
-  remove(id){const a=this.all().filter(x=>x.id!==id);this.save(a);return a}
+  all(){return CACHE.slice()},
+  add(r){r.by=ME;COL.add(r).catch(e=>alert('儲存失敗：'+e.message))},
+  remove(id){COL.doc(id).delete().catch(e=>alert('刪除失敗：'+e.message))}
 };
+
+COL.onSnapshot(sn=>{
+  CACHE=sn.docs.map(d=>({id:d.id,...d.data()}));
+  loaded=true;
+  if(booted){
+    drawToday();
+    if(document.getElementById('p-his').classList.contains('on')) drawHis();
+  }
+}, e=>alert('連不上雲端資料庫：'+e.message));
 
 const STORES={
   '鼎山':{c:'--ding',t:'--ding-t',staff:['劉家妘','陳亭安','高琦茗','凃彥州']},
@@ -311,6 +334,7 @@ document.querySelectorAll('.tab').forEach(t=>{
 function boot(){
   $('dPick').value=ymd(new Date());
   $('dPick').onchange=()=>{drawDate();drawToday()};
+  booted=true;
   drawStoreTabs();drawPeople();drawDate();drawToday();
   $('hStore').innerHTML='<option value="">全部門市</option>'+Object.keys(STORES).map(s=>`<option>${s}</option>`).join('');
   $('hKind').innerHTML='<option value="">全部類型</option>'+KINDS.map(k=>`<option>${k}</option>`).join('');
@@ -411,7 +435,7 @@ $('mSave').onclick=()=>{
           reason:reason, time:kind==='晚到'?$('fTime').value:'',
           note:$('fNote').value.trim()});
   $('mask').classList.remove('on');
-  $('dPick').value=$('fDate').value;drawDate();drawToday();
+  $('dPick').value=$('fDate').value;drawDate();
 };
 
 /* ── 當日紀錄 ── */
@@ -429,10 +453,11 @@ function row(r,showDate){
 }
 function bindDel(fn){
   document.querySelectorAll('.del').forEach(b=>b.onclick=()=>{
-    if(confirm('確定刪除這筆紀錄？')){DB.remove(b.dataset.id);fn()}
+    if(confirm('確定刪除這筆紀錄？')){DB.remove(b.dataset.id)}
   });
 }
 function drawToday(){
+  if(!loaded){$('todayList').innerHTML='<div class="empty">載入中…</div>';return}
   const d=$('dPick').value;
   const recs=DB.all().filter(r=>r.date===d).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
   $('todayLbl').textContent=`這一天的紀錄　${recs.length} 筆`;
@@ -450,6 +475,7 @@ function filtered(){
   return a.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
 }
 function drawHis(){
+  if(!loaded) return;
   const base=filtered();          /* 篩選條件內的全部 → 統計表用 */
   drawSumTable(base);
   const a=picked?base.filter(r=>r.name===picked):base;   /* 再套點選的人 → 明細用 */

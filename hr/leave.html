@@ -240,20 +240,32 @@ input:focus,select:focus{outline:2px solid var(--tea);outline-offset:-1px;border
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   資料層 ── 之後改接 Firebase 只要換掉這一個區塊
-   目前：存在這台裝置的瀏覽器裡（換裝置看不到）
+   資料層 ── Firebase Firestore（雲端，所有人共用同一份）
+   集合：leave_requests
    ══════════════════════════════════════════════════ */
-const KEY='emo_leave_v5';
+firebase.initializeApp({
+  apiKey:"AIzaSyB0z4t9S2mRdQZ9Q6kExa3SuFgjNZmskSw",
+  authDomain:"emo-gift-platform.firebaseapp.com",
+  projectId:"emo-gift-platform",
+  storageBucket:"emo-gift-platform.firebasestorage.app",
+  messagingSenderId:"251699644492",
+  appId:"1:251699644492:web:da3f8739bd1256f83f0ce9"
+});
+const COL=firebase.firestore().collection('leave_requests');
+
+let CACHE=[], loaded=false, booted=false;
 const DB={
-  all(){try{const v=localStorage.getItem(KEY);return v?JSON.parse(v):seed()}catch(e){return seed()}},
-  save(a){localStorage.setItem(KEY,JSON.stringify(a))},
-  add(r){const a=this.all();r.id=Date.now()+''+Math.floor(Math.random()*99);a.push(r);this.save(a);return a},
-  remove(id){const a=this.all().filter(x=>x.id!==id);this.save(a);return a}
+  all(){return CACHE.slice()},
+  add(r){COL.add(r).catch(e=>alert('儲存失敗：'+e.message))},
+  remove(id){COL.doc(id).delete().catch(e=>alert('刪除失敗：'+e.message))}
 };
-function seed(){
-  const s=[
+
+/* 首次啟用：雲端是空的才把既有 31 筆匯進去，只會發生一次 */
+const SEED=[
     {id:'r1',store:'後昌',name:'秦曼芯',from:'2026-07-31',to:'2026-08-02',kind:'連休',note:'宜蘭',status:'已核准'},
     {id:'r2',store:'陽明',name:'林庭逸',from:'2026-07-16',to:'2026-07-20',kind:'出國',note:'日本',status:'已核准'},
     {id:'r3',store:'鼎山',name:'劉家妘',from:'2026-08-02',to:'2026-08-04',kind:'連休',note:'家有小一新生輔導',status:'已核准'},
@@ -286,8 +298,18 @@ function seed(){
     {id:'r30',store:'鼎山',name:'高琦茗',from:'2026-08-31',to:'2026-09-02',kind:'連休',note:'北部',status:'申請中'},
     {id:'r31',store:'凱旋',name:'石佳穎',from:'2026-02-15',to:'2026-02-18',kind:'連休',note:'過年出遊',status:'已核准'}
   ];
-  localStorage.setItem(KEY,JSON.stringify(s));return s;
-}
+COL.limit(1).get().then(sn=>{
+  if(sn.empty){
+    const B=firebase.firestore().batch();
+    SEED.forEach(r=>{const{id,...d}=r;B.set(COL.doc(),d)});
+    return B.commit();
+  }
+}).catch(e=>console.log('匯入略過',e.message));
+
+COL.onSnapshot(sn=>{
+  CACHE=sn.docs.map(d=>({id:d.id,...d.data()}));
+  loaded=true; if(booted) draw();
+}, e=>alert('連不上雲端資料庫：'+e.message));
 
 const STORES={
   '鼎山':{c:'--ding',t:'--ding-t',staff:['劉家妘','陳亭安','高琦茗','凃彥州']},
@@ -330,6 +352,7 @@ function byDay(){
 
 function draw(){
   $('yTxt').textContent=year;
+  if(!loaded){$('months').innerHTML='<div class="empty">載入中…</div>';return}
   const map=byDay(), list=inYear(recs());
   const now=new Date(), thisYear=now.getFullYear()===year;
 
@@ -417,7 +440,7 @@ function draw(){
 
   document.querySelectorAll('.del').forEach(b=>{
     b.onclick=e=>{e.stopPropagation();
-      if(confirm('確定刪除這筆申請？')){DB.remove(b.dataset.id);draw()}};
+      if(confirm('確定刪除這筆申請？')){DB.remove(b.dataset.id)}};
   });
   if(editMode){
     document.querySelectorAll('.item').forEach((el,i)=>{
@@ -453,7 +476,7 @@ $('mCancel').onclick=()=>$('mask').classList.remove('on');
 $('mask').onclick=e=>{if(e.target===$('mask'))$('mask').classList.remove('on')};
 $('mDel').onclick=()=>{
   if(editing&&confirm('確定刪除這筆申請？')){DB.remove(editing.id);editing=null;
-    $('mask').classList.remove('on');draw()}
+    $('mask').classList.remove('on')}
 };
 $('mSave').onclick=()=>{
   const r={store:$('fStore').value,name:$('fName').value,from:$('fFrom').value,
@@ -463,7 +486,7 @@ $('mSave').onclick=()=>{
   if(r.to<r.from){alert('結束日不能早於開始日');return}
   if(editing) DB.remove(editing.id);
   DB.add(r);editing=null;$('mask').classList.remove('on');
-  year=Number(r.from.slice(0,4));draw();
+  year=Number(r.from.slice(0,4));
 };
 
 /* 員編 */
@@ -486,6 +509,7 @@ $('gCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('gOk').click()});
 $('yPrev').onclick=()=>{year--;draw()};
 $('yNext').onclick=()=>{year++;draw()};
 
+booted=true;
 draw();
 </script>
 </body>

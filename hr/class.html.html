@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>倚盟電訊 班表查詢</title>
+<style>
+  :root {
+    --header-green: #2e7d4f;
+    --header-green-dark: #1b5e3a;
+    --mint-bg: #f4f1e8;
+    --header-banner: #fdf3c7;
+    --accent-coral: #ffcf7a;
+    --accent-coral-dark: #6b4a00;
+    --border-c: #c9c2a0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+    background: var(--mint-bg);
+    margin: 0;
+    padding: 16px;
+    color: #223229;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    color: var(--header-green-dark);
+    margin: 4px 0 16px;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .controls button {
+    background: var(--header-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .controls button:active { opacity: 0.8; }
+  .controls select, .controls input[type=date] {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-c);
+    font-size: 15px;
+    background: white;
+    min-width: 150px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  @media (max-width: 420px) {
+    .controls input[type=date] {
+      flex: 1 1 100%;
+      order: -1;
+      min-width: 0;
+      width: 100%;
+    }
+  }
+  .date-banner {
+    background: var(--header-banner);
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 10px 10px 0 0;
+    color: #d32f2f;
+    letter-spacing: 1px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(47,107,79,0.12);
+  }
+  th {
+    background: var(--header-green);
+    color: white;
+    padding: 10px 4px;
+    font-size: 15px;
+    border: 1px solid var(--header-green-dark);
+  }
+  td {
+    text-align: center;
+    padding: 10px 4px;
+    border: 1px solid var(--border-c);
+    font-size: 15px;
+    vertical-align: top;
+    background: #fbfdfc;
+  }
+  .empty-day { text-align: center; color: #8a9a91; padding: 30px 0; font-size: 15px; }
+  td.mgr-cell {
+    background: #ffe6a3;
+    font-weight: bold;
+    color: #6b4a00;
+  }
+  tr.coef-row td {
+    background: #d7ecc4;
+    color: #2e5c1f;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .footer-note {
+    text-align: center;
+    font-size: 12px;
+    color: #7c9187;
+    margin-top: 14px;
+  }
+  .edit-panel {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+    box-shadow: 0 2px 8px rgba(47,107,79,0.12);
+    display: none;
+  }
+  .edit-panel.open { display: block; }
+  .edit-panel h3 { margin-top: 0; font-size: 16px; color: var(--header-green); }
+  .edit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .edit-store label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+    color: var(--header-green-dark);
+    font-size: 14px;
+  }
+  .edit-store textarea {
+    width: 100%;
+    min-height: 90px;
+    border: 1px solid var(--border-c);
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .save-row {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .save-row button {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-save { background: var(--header-green); color: white; }
+  .btn-cancel { background: #e2ede7; color: #3a4a42; }
+  .status-msg {
+    text-align: center;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 18px;
+    color: var(--header-green);
+  }
+  .lock-msg {
+    text-align: center;
+    font-size: 13px;
+    color: var(--accent-coral-dark);
+    margin-top: 6px;
+  }
+  input[type=date]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    filter: invert(28%) sepia(54%) saturate(789%) hue-rotate(101deg) brightness(94%) contrast(92%);
+  }
+  .date-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #6a8a76;
+    margin: -6px 0 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>倚盟電訊 每日班表查詢</h1>
+
+  <div class="controls">
+    <button id="prevBtn">◀ 前一天</button>
+    <input type="date" id="datePicker" min="2026-08-01" max="2026-08-31" value="2026-08-02">
+    <button id="todayBtn">今天</button>
+    <button id="nextBtn">後一天 ▶</button>
+  </div>
+  <div class="date-hint">📅 點選上方日期欄可直接挑選日期</div>
+
+  <div class="date-banner" id="dateBanner">2026/8/2 星期日</div>
+  <table>
+    <thead>
+      <tr id="headerRow"></tr>
+    </thead>
+    <tbody id="scheduleBody">
+      <tr id="bodyRow"></tr>
+    </tbody>
+  </table>
+
+  <div class="footer-note">資料如有異動請聯繫倚盟管理部更新</div>
+</div>
+
+<script>
+const STORES = ["鼎山","陽明","後昌","仁雄","凱旋","總部"];
+const MANAGER_SET = new Set(["劉家妘","黃庭鈞","郭家維","黃傑稜","陳宛姍"]);
+const NAME_COEF = {
+  "劉家妘":1.3, "陳亭安":1.1, "高琦茗":1.0, "凃彥州":0.85,
+  "黃庭鈞":1.3, "劉芳廷":1.1, "邱雨蔚":1.1, "林庭逸":0.85,
+  "郭家維":1.0, "黃閔聖":1.1, "秦曼芯":0.85,
+  "黃傑稜":1.2, "郭紳鴻":1.0, "石佳穎":1.1, "蔡冠廷":0.85,
+  "陳宛姍":1.3, "黃子珊":1.1, "方若帆":1.2, "林瑞献":0.85, "劉宗翰":0.8
+};
+const WEEKDAY_ZH = ["日","一","二","三","四","五","六"];
+
+const DEFAULT_SCHEDULE = {"1": {"weekday": "六", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["黃庭鈞", "劉芳廷"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献"], "總部": ["姚東妍"]}, "coef": {"鼎山": 3.15, "陽明": 2.4, "後昌": 2.1, "仁雄": 3.05, "凱旋": 3.25}}, "2": {"weekday": "日", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "郭紳鴻", "石佳穎"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献"], "總部": []}, "coef": {"鼎山": 2.95, "陽明": 1.95, "後昌": 2.1, "仁雄": 3.3, "凱旋": 3.25}}, "3": {"weekday": "一", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["邱雨蔚", "黃閔聖"], "後昌": ["黃庭鈞", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.95, "陽明": 2.2, "後昌": 2.15, "仁雄": 2.95, "凱旋": 3.1}}, "4": {"weekday": "二", "stores": {"鼎山": ["陳亭安", "凃彥州", "劉宗翰"], "陽明": ["黃庭鈞", "邱雨蔚"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.75, "陽明": 2.4, "後昌": 1.85, "仁雄": 3.05, "凱旋": 3.15}}, "5": {"weekday": "三", "stores": {"鼎山": ["劉家妘", "陳亭安", "高琦茗"], "陽明": ["劉芳廷", "林庭逸", "林瑞献"], "後昌": ["郭家維", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["黃庭鈞", "陳宛姍", "方若帆", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.4, "陽明": 2.8, "後昌": 2.95, "仁雄": 3.15, "凱旋": 4.6}}, "6": {"weekday": "四", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "林庭逸"], "後昌": ["黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎"], "凱旋": ["陳宛姍", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 1.95, "後昌": 1.95, "仁雄": 2.3, "凱旋": 3.35}}, "7": {"weekday": "五", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["黃庭鈞", "劉芳廷", "林庭逸"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["郭紳鴻", "石佳穎", "邱雨蔚"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 3.25, "後昌": 2.1, "仁雄": 3.2, "凱旋": 4.05}}, "8": {"weekday": "六", "stores": {"鼎山": ["劉家妘", "陳亭安"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["黃庭鈞", "郭家維", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "劉宗翰"], "總部": ["曾芳新"]}, "coef": {"鼎山": 2.4, "陽明": 1.95, "後昌": 3.15, "仁雄": 2.95, "凱旋": 3.1}}, "9": {"weekday": "日", "stores": {"鼎山": ["陳亭安", "凃彥州", "劉宗翰"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "方若帆"], "總部": []}, "coef": {"鼎山": 2.75, "陽明": 2.2, "後昌": 1.95, "仁雄": 3.05, "凱旋": 3.6}}, "10": {"weekday": "一", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["黃庭鈞", "劉芳廷", "林庭逸"], "後昌": ["郭家維", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "石佳穎"], "凱旋": ["陳宛姍", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 3.25, "後昌": 2.95, "仁雄": 3.3, "凱旋": 3.35}}, "11": {"weekday": "二", "stores": {"鼎山": ["劉家妘", "陳亭安", "高琦茗"], "陽明": ["黃庭鈞", "邱雨蔚"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "石佳穎", "劉芳廷"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.4, "陽明": 2.4, "後昌": 2.1, "仁雄": 3.4, "凱旋": 4.05}}, "12": {"weekday": "三", "stores": {"鼎山": ["劉家妘", "陳亭安", "高琦茗"], "陽明": ["劉芳廷", "邱雨蔚", "林庭逸"], "後昌": ["黃庭鈞", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "林瑞献", "劉宗翰"], "總部": ["廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.4, "陽明": 3.05, "後昌": 3.25, "仁雄": 3.05, "凱旋": 3.95}}, "13": {"weekday": "四", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.95, "陽明": 1.95, "後昌": 1.85, "仁雄": 2.95, "凱旋": 3.15}}, "14": {"weekday": "五", "stores": {"鼎山": ["劉家妘", "陳亭安", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚", "林庭逸"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["黃庭鈞", "陳宛姍", "方若帆", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.25, "陽明": 3.05, "後昌": 1.85, "仁雄": 3.15, "凱旋": 4.6}}, "15": {"weekday": "六", "stores": {"鼎山": ["劉家妘", "凃彥州", "林庭逸"], "陽明": ["黃庭鈞", "劉芳廷"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "郭紳鴻", "石佳穎"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献", "劉宗翰"], "總部": ["廖宛如"]}, "coef": {"鼎山": 3.0, "陽明": 2.4, "後昌": 2.1, "仁雄": 3.3, "凱旋": 4.05}}, "16": {"weekday": "日", "stores": {"鼎山": ["劉家妘", "高琦茗"], "陽明": ["黃庭鈞", "劉芳廷"], "後昌": ["黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["黃子珊", "方若帆", "林瑞献", "劉宗翰"], "總部": []}, "coef": {"鼎山": 2.3, "陽明": 2.4, "後昌": 1.95, "仁雄": 3.05, "凱旋": 3.95}}, "17": {"weekday": "一", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚", "林庭逸"], "後昌": ["郭家維", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["陳宛姍", "方若帆", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.95, "陽明": 3.05, "後昌": 2.95, "仁雄": 3.05, "凱旋": 3.3}}, "18": {"weekday": "二", "stores": {"鼎山": ["劉家妘", "陳亭安", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "林瑞献"], "凱旋": ["黃庭鈞", "陳宛姍", "方若帆"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.25, "陽明": 1.95, "後昌": 1.85, "仁雄": 2.95, "凱旋": 3.8}}, "19": {"weekday": "三", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["黃庭鈞", "郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "林瑞献", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 1.95, "後昌": 3.4, "仁雄": 3.15, "凱旋": 4.05}}, "20": {"weekday": "四", "stores": {"鼎山": ["劉家妘", "陳亭安", "高琦茗"], "陽明": ["黃庭鈞", "劉芳廷", "林庭逸"], "後昌": ["黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.4, "陽明": 3.25, "後昌": 1.95, "仁雄": 3.05, "凱旋": 3.2}}, "21": {"weekday": "五", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["黃庭鈞", "黃閔聖"], "仁雄": ["郭紳鴻", "石佳穎", "秦曼芯"], "凱旋": ["黃子珊", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.95, "陽明": 2.2, "後昌": 2.4, "仁雄": 2.95, "凱旋": 3.15}}, "22": {"weekday": "六", "stores": {"鼎山": ["劉家妘", "陳亭安", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["陳宛姍", "方若帆", "林瑞献"], "總部": ["姚東妍"]}, "coef": {"鼎山": 3.25, "陽明": 2.2, "後昌": 1.85, "仁雄": 3.15, "凱旋": 3.35}}, "23": {"weekday": "日", "stores": {"鼎山": ["黃庭鈞", "劉家妘", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "郭紳鴻", "蔡冠廷"], "凱旋": ["陳宛姍", "方若帆", "林瑞献", "劉宗翰"], "總部": []}, "coef": {"鼎山": 3.45, "陽明": 1.95, "後昌": 2.1, "仁雄": 3.05, "凱旋": 4.15}}, "24": {"weekday": "一", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "林庭逸"], "後昌": ["黃庭鈞", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "郭紳鴻", "石佳穎"], "凱旋": ["陳宛姍", "黃子珊", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 1.95, "後昌": 3.25, "仁雄": 3.3, "凱旋": 3.2}}, "25": {"weekday": "二", "stores": {"鼎山": ["陳亭安", "高琦茗"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "方若帆", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 2.1, "陽明": 2.2, "後昌": 1.85, "仁雄": 2.95, "凱旋": 4.4}}, "26": {"weekday": "三", "stores": {"鼎山": ["劉家妘", "陳亭安", "高琦茗"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["黃庭鈞", "方若帆", "林瑞献"], "總部": ["廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.4, "陽明": 2.2, "後昌": 1.85, "仁雄": 3.15, "凱旋": 3.35}}, "27": {"weekday": "四", "stores": {"鼎山": ["劉家妘", "陳亭安", "凃彥州"], "陽明": ["邱雨蔚", "林庭逸"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "石佳穎"], "凱旋": ["黃庭鈞", "黃子珊", "林瑞献", "劉宗翰"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.25, "陽明": 1.95, "後昌": 2.1, "仁雄": 2.3, "凱旋": 4.05}}, "28": {"weekday": "五", "stores": {"鼎山": ["劉家妘", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "林庭逸"], "後昌": ["郭家維", "黃閔聖"], "仁雄": ["黃傑稜", "郭紳鴻", "劉宗翰"], "凱旋": ["黃子珊", "方若帆", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.15, "陽明": 1.95, "後昌": 2.1, "仁雄": 3.0, "凱旋": 3.15}}, "29": {"weekday": "六", "stores": {"鼎山": ["陳亭安", "高琦茗", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚"], "後昌": ["黃閔聖", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["陳宛姍", "黃子珊", "方若帆", "劉宗翰"], "總部": ["廖宛如"]}, "coef": {"鼎山": 2.95, "陽明": 2.2, "後昌": 1.95, "仁雄": 2.95, "凱旋": 4.4}}, "30": {"weekday": "日", "stores": {"鼎山": ["陳亭安", "高琦茗"], "陽明": ["黃庭鈞", "邱雨蔚", "林庭逸"], "後昌": ["郭家維", "秦曼芯"], "仁雄": ["郭紳鴻", "石佳穎", "蔡冠廷"], "凱旋": ["陳宛姍", "方若帆", "林瑞献", "劉宗翰"], "總部": []}, "coef": {"鼎山": 2.1, "陽明": 3.25, "後昌": 1.85, "仁雄": 2.95, "凱旋": 4.15}}, "31": {"weekday": "一", "stores": {"鼎山": ["劉家妘", "陳亭安", "凃彥州"], "陽明": ["劉芳廷", "邱雨蔚", "林庭逸"], "後昌": ["郭家維", "黃閔聖", "秦曼芯"], "仁雄": ["黃傑稜", "石佳穎", "蔡冠廷"], "凱旋": ["黃庭鈞", "陳宛姍", "黃子珊", "林瑞献"], "總部": ["姚東妍", "廖宛如", "曾芳新"]}, "coef": {"鼎山": 3.25, "陽明": 3.05, "後昌": 2.95, "仁雄": 3.15, "凱旋": 4.55}}};
+
+let scheduleData = DEFAULT_SCHEDULE;
+
+function formatDateBanner(y, m, d) {
+  const dt = new Date(y, m - 1, d);
+  const wd = WEEKDAY_ZH[dt.getDay()];
+  return `${y}/${m}/${d} 星期${wd}`;
+}
+
+function getDayData(day) {
+  const rec = scheduleData[String(day)];
+  if (!rec) return null;
+  return rec;
+}
+
+function renderDay() {
+  const picker = document.getElementById("datePicker");
+  const [y, m, d] = picker.value.split("-").map(Number);
+  document.getElementById("dateBanner").textContent = formatDateBanner(y, m, d);
+
+  const headerRow = document.getElementById("headerRow");
+  const tbody = document.getElementById("scheduleBody");
+  headerRow.innerHTML = "";
+  tbody.innerHTML = "";
+
+  if (m !== 8 || y !== 2026) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-day">目前僅提供 2026 年 8 月班表</td></tr>`;
+    STORES.forEach(s => {
+      const th = document.createElement("th");
+      th.textContent = s;
+      headerRow.appendChild(th);
+    });
+    return;
+  }
+
+  const dayData = getDayData(d);
+  const isSunday = dayData && dayData.weekday === "日";
+  const displayCols = isSunday ? STORES.filter(s => s !== "總部") : STORES;
+  displayCols.forEach(s => {
+    const th = document.createElement("th");
+    th.textContent = s;
+    headerRow.appendChild(th);
+  });
+
+  if (!dayData) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-day">尚無此日期資料</td></tr>`;
+    return;
+  }
+
+  const maxLen = Math.max(...displayCols.map(s => (dayData.stores[s] || []).length), 1);
+  for (let i = 0; i < maxLen; i++) {
+    const tr = document.createElement("tr");
+    displayCols.forEach(s => {
+      const td = document.createElement("td");
+      const names = dayData.stores[s] || [];
+      const name = names[i] || "";
+      td.textContent = name;
+      if (name && MANAGER_SET.has(name)) {
+        td.classList.add("mgr-cell");
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+
+  const coefRow = document.createElement("tr");
+  coefRow.className = "coef-row";
+  displayCols.forEach(s => {
+    const td = document.createElement("td");
+    if (s === "總部") {
+      td.textContent = "";
+    } else {
+      const val = (dayData.coef && dayData.coef[s] !== undefined) ? dayData.coef[s] : 0;
+      td.textContent = val.toFixed(2);
+    }
+    coefRow.appendChild(td);
+  });
+  tbody.appendChild(coefRow);
+}
+
+document.getElementById("prevBtn").addEventListener("click", () => {
+  const picker = document.getElementById("datePicker");
+  const dt = new Date(picker.value);
+  dt.setDate(dt.getDate() - 1);
+  picker.value = dt.toISOString().slice(0,10);
+  renderDay();
+});
+document.getElementById("nextBtn").addEventListener("click", () => {
+  const picker = document.getElementById("datePicker");
+  const dt = new Date(picker.value);
+  dt.setDate(dt.getDate() + 1);
+  picker.value = dt.toISOString().slice(0,10);
+  renderDay();
+});
+document.getElementById("todayBtn").addEventListener("click", () => {
+  const today = new Date();
+  let y = today.getFullYear(), m = today.getMonth()+1, d = today.getDate();
+  if (y !== 2026 || m !== 8) { y = 2026; m = 8; d = 2; }
+  const picker = document.getElementById("datePicker");
+  picker.value = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  renderDay();
+});
+document.getElementById("datePicker").addEventListener("change", renderDay);
+
+(function init() {
+  const today = new Date();
+  let y = today.getFullYear(), m = today.getMonth()+1, d = today.getDate();
+  if (y !== 2026 || m !== 8) { y = 2026; m = 8; d = 2; }
+  document.getElementById("datePicker").value = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+  renderDay();
+})();
+</script>
+</body>
+</html>

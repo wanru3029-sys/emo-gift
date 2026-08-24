@@ -1,105 +1,231 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>倚盟休假管理</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>倚盟電訊 班表查詢</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;min-width:0}
-:root{
-  --bg:#EFEDEA;--card:#FFFFFF;--soft:#F8F7F5;--line:#DFDCD7;
-  --ink:#2A2926;--muted:#7E7B75;--tea:#5E5B54;--tea-soft:#E7E5E0;
-  --ding:#B5D4F4;--yang:#C0DD97;--hou:#FAC775;--ren:#CECBF6;--kai:#F4C0D1;
-}
-html{-webkit-text-size-adjust:100%}
-body{font-family:'Noto Sans TC',system-ui,sans-serif;background:var(--bg);color:var(--ink);
-  min-height:100vh;padding:26px 14px 44px;overflow-x:hidden}
-.wrap{max-width:600px;margin:0 auto}
-
-.stripe{display:flex;height:5px;border-radius:99px;overflow:hidden;margin-bottom:20px}
-.stripe i{flex:1}
-.stripe i:nth-child(1){background:var(--ding)}
-.stripe i:nth-child(2){background:var(--yang)}
-.stripe i:nth-child(3){background:var(--hou)}
-.stripe i:nth-child(4){background:var(--ren)}
-.stripe i:nth-child(5){background:var(--kai)}
-
-.eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:13.5px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--tea);font-weight:600;margin-bottom:5px}
-h1{font-size:26px;font-weight:700;line-height:1.25;color:var(--tea)}
-.sub{color:var(--muted);font-size:13.5px;margin-top:8px;line-height:1.7}
-.today{font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:.05em;
-  color:var(--muted);margin-top:12px}
-
-.cards{margin-top:26px;display:flex;flex-direction:column;gap:11px}
-a.card{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;
-  background:var(--card);border:1px solid var(--line);border-left:4px solid var(--tea);
-  border-radius:13px;padding:16px 16px;transition:.16s;box-shadow:0 1px 2px rgba(42,41,38,.05)}
-a.card:hover,a.card:focus-visible{background:var(--soft);transform:translateX(3px);
-  box-shadow:0 3px 10px rgba(42,41,38,.08)}
-a.card:focus-visible{outline:2px solid var(--tea);outline-offset:2px}
-a.card.locked{border-left-color:#BFBCB5}
-.ico{font-size:22px;line-height:1;flex:none;width:28px;text-align:center}
-.txt{flex:1}
-.t{font-size:16px;font-weight:700}
-.d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.6}
-.arrow{font-family:'Barlow Condensed',sans-serif;color:var(--tea);font-size:20px;flex:none}
-a.card.locked .arrow{color:#BFBCB5}
-.tag{display:inline-block;font-size:10.5px;color:var(--muted);border:1px solid var(--line);
-  border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:2px;font-weight:500}
-
-footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
-  color:var(--muted);font-size:11.5px;line-height:1.8}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :root {
+    --border-c: #d8d8d8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+    background: #f4f5f7;
+    margin: 0;
+    padding: 16px;
+    color: #222;
+  }
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    color: #1b1b1b;
+    margin-bottom: 14px;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .controls button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-c);
+    background: white;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .controls button:hover { background: #eef6ee; }
+  .controls select, .controls input[type=date] {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-c);
+    font-size: 15px;
+    background: white;
+    min-width: 150px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  @media (max-width: 420px) {
+    .controls input[type=date] {
+      flex: 1 1 100%;
+      order: -1;
+      min-width: 0;
+      width: 100%;
+    }
+  }
+  .hint {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .date-banner {
+    background: #FFF6C9;
+    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #C0392B;
+    margin-bottom: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  th, td {
+    border: 1px solid var(--border-c);
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 14px;
+    vertical-align: top;
+  }
+  thead th {
+    background: #228B22;
+    color: white;
+    font-size: 15px;
+    padding: 10px 4px;
+  }
+  td.namecell { padding: 6px 4px; }
+  .staffline {
+    padding: 4px 2px;
+    border-radius: 6px;
+    margin: 2px 0;
+  }
+  .staffline.manager {
+    background: #FFE1BE;
+    font-weight: bold;
+  }
+  .staffline.support {
+    color: #666;
+    font-style: italic;
+  }
+  .coef-row td {
+    background: #E4F5DE;
+    font-weight: bold;
+    color: #2b6b2b;
+  }
+  footer {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    margin-top: 18px;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="stripe"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="eyebrow">E-MO 倚盟電訊</div>
-  <h1>休假管理</h1>
-  <p class="sub">連休、出國、當天的出勤異動，都在這裡查。</p>
-  <div class="today" id="today"></div>
-
-  <nav class="cards">
-    <a class="card" href="class.html">
-      <span class="ico">📅</span>
-      <span class="txt">
-        <span class="t">每日班表查詢</span>
-        <span class="d">今天誰上班？各店當日人力一次看</span>
-      </span>
-      <span class="arrow">→</span>
-    </a>
-    <a class="card" href="leave.html">
-      <span class="ico">📋</span>
-      <span class="txt">
-        <span class="t">連休申請總覽</span>
-        <span class="d">誰要出國、誰排連休？整年度一次看完</span>
-      </span>
-      <span class="arrow">→</span>
-    </a>
-    <a class="card locked" href="log.html">
-      <span class="ico">⏰</span>
-      <span class="txt">
-        <span class="t">出勤異動登記<span class="tag">需員編</span></span>
-        <span class="d">遲到、早退、臨時請假的即時登記與累計紀錄</span>
-      </span>
-      <span class="arrow">→</span>
-    </a>
-  </nav>
-
-  <footer>
-    © 2026 倚盟電訊　休假管理<br>
-    紀錄僅供內部排班與人事作業使用，實際假別以倚盟管理部為準。
-  </footer>
+  <h1>倚盟電訊 每日班表查詢</h1>
+  <div class="controls">
+    <button id="prevBtn">◀ 前一天</button>
+    <button id="todayBtn">今天</button>
+    <button id="nextBtn">後一天 ▶</button>
+    <input type="date" id="datePicker" min="2026-08-01" max="2026-08-31" value="2026-08-01">
+  </div>
+  <div class="hint">📅 點選上方日期欄可直接挑選日期</div>
+  <div class="date-banner" id="dateBanner"></div>
+  <table>
+    <thead><tr id="headerRow"></tr></thead>
+    <tbody><tr id="bodyRow"></tr></tbody>
+    <tbody><tr class="coef-row" id="coefRow"></tr></tbody>
+  </table>
+  <footer>資料如有異動請聯繫倚盟管理部更新</footer>
 </div>
+
 <script>
-const W=['日','一','二','三','四','五','六'],n=new Date();
-document.getElementById('today').textContent=
-  `${n.getFullYear()}/${String(n.getMonth()+1).padStart(2,'0')}/${String(n.getDate()).padStart(2,'0')}　星期${W[n.getDay()]}`;
+const SCHEDULE = {"2026-08-01": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"]], "c": 2.4}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["陳宛姍", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.25}, "總部": {"a": [["姚東妍", "home"]], "c": null}}, "2026-08-02": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["郭紳鴻", "home"]], "c": 3.3}, "凱旋": {"a": [["陳宛姍", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.25}, "總部": {"a": [], "c": null}}, "2026-08-03": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["邱雨蔚", "home"], ["黃閔聖", "support"]], "c": 2.2}, "後昌": {"a": [["黃庭鈞", "home"], ["秦曼芯", "home"]], "c": 2.15}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["劉宗翰", "home"], ["方若帆", "home"], ["黃子珊", "home"]], "c": 3.1}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-04": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["劉宗翰", "support"]], "c": 2.75}, "陽明": {"a": [["黃庭鈞", "home"], ["邱雨蔚", "home"]], "c": 2.4}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 1.85}, "凱旋": {"a": [["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.15}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-05": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"], ["林瑞献", "support"]], "c": 2.8}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 2.95}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["黃庭鈞", "home"], ["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"]], "c": 4.6}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-06": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"]], "c": 1.95}, "後昌": {"a": [["黃閔聖", "home"]], "c": 1.1}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"]], "c": 2.3}, "凱旋": {"a": [["陳宛姍", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 3.35}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-07": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"], ["林庭逸", "home"]], "c": 3.25}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["石佳穎", "home"], ["郭紳鴻", "home"], ["邱雨蔚", "support"]], "c": 3.2}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.05}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-08": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"]], "c": 2.4}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["黃庭鈞", "home"], ["郭家維", "home"]], "c": 2.3}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["劉宗翰", "home"], ["方若帆", "home"], ["黃子珊", "home"]], "c": 3.1}, "總部": {"a": [["曾芳新", "home"]], "c": null}}, "2026-08-09": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["劉宗翰", "support"]], "c": 2.75}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 1.95}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["陳宛姍", "home"], ["方若帆", "home"], ["黃子珊", "home"]], "c": 3.6}, "總部": {"a": [], "c": null}}, "2026-08-10": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"], ["林庭逸", "home"]], "c": 3.25}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 2.95}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["郭紳鴻", "home"]], "c": 3.3}, "凱旋": {"a": [["陳宛姍", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 3.35}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-11": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["黃庭鈞", "home"], ["邱雨蔚", "home"]], "c": 2.4}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["劉芳廷", "support"]], "c": 3.4}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.05}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-12": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 3.05}, "後昌": {"a": [["黃庭鈞", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 3.25}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["劉宗翰", "home"], ["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.95}, "總部": {"a": [["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-13": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.15}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-14": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["陳亭安", "home"]], "c": 3.25}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 3.05}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["黃庭鈞", "home"], ["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"]], "c": 4.6}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-15": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["林庭逸", "support"]], "c": 3.0}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"]], "c": 2.4}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["郭紳鴻", "home"]], "c": 3.3}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.05}, "總部": {"a": [["廖宛如", "home"]], "c": null}}, "2026-08-16": {"鼎山": {"a": [["劉家妘", "home"], ["高琦茗", "home"]], "c": 2.3}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"]], "c": 2.4}, "後昌": {"a": [["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 1.95}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["劉宗翰", "home"], ["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.95}, "總部": {"a": [], "c": null}}, "2026-08-17": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 3.05}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 2.95}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"]], "c": 3.3}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-18": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["陳亭安", "home"]], "c": 3.25}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["石佳穎", "home"], ["郭紳鴻", "home"], ["林瑞献", "support"]], "c": 2.95}, "凱旋": {"a": [["黃庭鈞", "home"], ["陳宛姍", "home"], ["方若帆", "home"]], "c": 3.8}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-19": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["黃庭鈞", "home"], ["郭家維", "home"], ["黃閔聖", "home"]], "c": 3.4}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.05}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-20": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["黃庭鈞", "home"], ["劉芳廷", "home"], ["林庭逸", "home"]], "c": 3.25}, "後昌": {"a": [["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 1.95}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["黃子珊", "home"]], "c": 3.2}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-21": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["黃庭鈞", "home"], ["黃閔聖", "home"]], "c": 2.4}, "仁雄": {"a": [["石佳穎", "home"], ["郭紳鴻", "home"], ["秦曼芯", "support"]], "c": 2.95}, "凱旋": {"a": [["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.15}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-22": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["陳亭安", "home"]], "c": 3.25}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["陳宛姍", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 3.35}, "總部": {"a": [["姚東妍", "home"]], "c": null}}, "2026-08-23": {"鼎山": {"a": [["黃庭鈞", "support"], ["劉家妘", "home"], ["凃彥州", "home"]], "c": 3.45}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 3.05}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 4.15}, "總部": {"a": [], "c": null}}, "2026-08-24": {"鼎山": {"a": [["凃彥州", "home"], ["高琦茗", "home"]], "c": 1.85}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"]], "c": 1.95}, "後昌": {"a": [["黃庭鈞", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 3.25}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["郭紳鴻", "home"]], "c": 3.3}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["黃子珊", "home"]], "c": 3.2}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-25": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"], ["黃子珊", "home"]], "c": 4.4}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-26": {"鼎山": {"a": [["劉家妘", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 3.4}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["黃庭鈞", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 3.35}, "總部": {"a": [["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-27": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["陳亭安", "home"]], "c": 3.25}, "陽明": {"a": [["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"]], "c": 2.3}, "凱旋": {"a": [["黃庭鈞", "home"], ["劉宗翰", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.05}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-28": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["高琦茗", "home"]], "c": 3.15}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"]], "c": 1.95}, "後昌": {"a": [["郭家維", "home"], ["黃閔聖", "home"]], "c": 2.1}, "仁雄": {"a": [["黃傑稜", "home"], ["郭紳鴻", "home"], ["劉宗翰", "support"]], "c": 3.0}, "凱旋": {"a": [["方若帆", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 3.15}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}, "2026-08-29": {"鼎山": {"a": [["凃彥州", "home"], ["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.95}, "陽明": {"a": [["劉芳廷", "home"], ["邱雨蔚", "home"]], "c": 2.2}, "後昌": {"a": [["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 1.95}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"], ["黃子珊", "home"]], "c": 4.4}, "總部": {"a": [["廖宛如", "home"]], "c": null}}, "2026-08-30": {"鼎山": {"a": [["陳亭安", "home"], ["高琦茗", "home"]], "c": 2.1}, "陽明": {"a": [["黃庭鈞", "home"], ["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 3.25}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"]], "c": 1.85}, "仁雄": {"a": [["石佳穎", "home"], ["蔡冠廷", "home"], ["郭紳鴻", "home"]], "c": 2.95}, "凱旋": {"a": [["陳宛姍", "home"], ["劉宗翰", "home"], ["方若帆", "home"], ["林瑞献", "home"]], "c": 4.15}, "總部": {"a": [], "c": null}}, "2026-08-31": {"鼎山": {"a": [["劉家妘", "home"], ["凃彥州", "home"], ["陳亭安", "home"]], "c": 3.25}, "陽明": {"a": [["劉芳廷", "home"], ["林庭逸", "home"], ["邱雨蔚", "home"]], "c": 3.05}, "後昌": {"a": [["郭家維", "home"], ["秦曼芯", "home"], ["黃閔聖", "home"]], "c": 2.95}, "仁雄": {"a": [["黃傑稜", "home"], ["石佳穎", "home"], ["蔡冠廷", "home"]], "c": 3.15}, "凱旋": {"a": [["黃庭鈞", "home"], ["陳宛姍", "home"], ["林瑞献", "home"], ["黃子珊", "home"]], "c": 4.55}, "總部": {"a": [["姚東妍", "home"], ["廖宛如", "home"], ["曾芳新", "home"]], "c": null}}};
+const STORES = ["鼎山", "陽明", "後昌", "仁雄", "凱旋"];
+const MANAGERS = new Set(["劉家妘", "郭家維", "陳宛姍", "黃傑稜", "黃庭鈞"]);
+const WEEKDAY_CN = ['日','一','二','三','四','五','六'];
+
+const datePicker = document.getElementById('datePicker');
+const dateBanner = document.getElementById('dateBanner');
+const headerRow = document.getElementById('headerRow');
+const bodyRow = document.getElementById('bodyRow');
+const coefRow = document.getElementById('coefRow');
+
+function fmtISO(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function render(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const wd = d.getDay(); // 0=Sun
+  const isSunday = (wd === 0);
+  const cols = isSunday ? STORES : STORES.concat(['總部']);
+
+  dateBanner.textContent = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 星期${WEEKDAY_CN[wd]}`;
+
+  headerRow.innerHTML = cols.map(s => `<th>${s}</th>`).join('');
+
+  const dayData = SCHEDULE[iso] || {};
+
+  bodyRow.innerHTML = cols.map(store => {
+    const sd = dayData[store];
+    if (!sd || !sd.a || sd.a.length === 0) {
+      return `<td class="namecell">-</td>`;
+    }
+    const lines = sd.a.map(([name, type]) => {
+      const cls = MANAGERS.has(name) ? 'staffline manager' : (type === 'support' ? 'staffline support' : 'staffline');
+      const label = type === 'support' ? `${name}(支援)` : name;
+      return `<div class="${cls}">${label}</div>`;
+    }).join('');
+    return `<td class="namecell">${lines}</td>`;
+  }).join('');
+
+  coefRow.innerHTML = cols.map(store => {
+    if (store === '總部') return `<td>-</td>`;
+    const sd = dayData[store];
+    const c = sd && sd.c != null ? sd.c.toFixed(2) : '-';
+    return `<td>${c}</td>`;
+  }).join('');
+}
+
+function goTo(iso) {
+  datePicker.value = iso;
+  render(iso);
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  const d = new Date(datePicker.value + 'T00:00:00');
+  d.setDate(d.getDate() - 1);
+  goTo(fmtISO(d));
+});
+document.getElementById('nextBtn').addEventListener('click', () => {
+  const d = new Date(datePicker.value + 'T00:00:00');
+  d.setDate(d.getDate() + 1);
+  goTo(fmtISO(d));
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  const today = new Date();
+  let iso = fmtISO(today);
+  if (!SCHEDULE[iso]) iso = '2026-08-01';
+  goTo(iso);
+});
+datePicker.addEventListener('change', () => render(datePicker.value));
+
+// initial render: today if within August 2026, else Aug 1
+(function init() {
+  const today = new Date();
+  let iso = fmtISO(today);
+  if (!SCHEDULE[iso]) iso = '2026-08-01';
+  goTo(iso);
+})();
 </script>
 </body>
 </html>
